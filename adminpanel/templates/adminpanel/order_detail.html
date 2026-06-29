@@ -1,0 +1,157 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}Order #{{ order.order_number }} Details - MiniMart Admin{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="mb-4">
+    <div>
+        <h1 class="page-title d-flex align-items-center">
+            <a href="{% url 'adminpanel:order_list' %}" class="btn btn-light btn-sm border me-3" style="background-color: #f8fafc; border-color: #e2e8f0!important; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px;">
+                <i class="fas fa-arrow-left"></i>
+            </a>Order #{{ order.order_number }}
+        </h1>
+        <p class="text-muted mb-0 mt-1" style="font-size:13px;">Detailed view and status management.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Order Items & Status Update -->
+    <div class="col-lg-8">
+
+        <!-- Items Table -->
+        <div class="panel-card p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                <h5 class="fw-bold mb-0 text-navy"><i class="fas fa-receipt me-2 text-primary"></i>Order Items</h5>
+                <span class="badge px-3 py-2" style="font-size:13px; {% if order.status == 'Delivered' %}background:#dcfce7;color:#15803d;{% elif order.status == 'Cancelled' %}background:#fee2e2;color:#b91c1c;{% elif order.status == 'Shipped' %}background:#dbeafe;color:#1d4ed8;{% else %}background:#fef9c3;color:#854d0e;{% endif %}">
+                    {{ order.status }}
+                </span>
+            </div>
+            <div class="table-responsive">
+                <table class="table admin-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    {% if item.product.images %}
+                                    <img src="{{ item.product.images.url }}" alt="{{ item.product.product_name }}"
+                                        width="48" height="48" class="rounded-2 object-fit-cover" style="border:1px solid #e2e8f0;">
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-bold" style="font-size:14px;">{{ item.product.product_name }}</div>
+                                        <small class="text-muted">SKU: {{ item.product.id }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>₹{{ item.product_price|floatformat:0 }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td class="text-end fw-bold">₹{{ item.sub_total|floatformat:0 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Totals -->
+            <div class="border-top pt-3 mt-3 d-flex flex-column align-items-end">
+                <div class="d-flex justify-content-between gap-5 mb-2" style="width:250px;">
+                    <span class="text-muted">Subtotal:</span>
+                    <span class="fw-semibold">₹{{ order.order_total|floatformat:0 }}</span>
+                </div>
+                <div class="d-flex justify-content-between gap-5 mb-2" style="width:250px;">
+                    <span class="text-muted">Shipping / Tax:</span>
+                    <span class="fw-semibold">₹0.00</span>
+                </div>
+                <div class="d-flex justify-content-between gap-5 border-top pt-2" style="width:250px;">
+                    <span class="fw-bold text-navy" style="font-size:15px;">Order Total:</span>
+                    <span class="fw-bold text-navy" style="font-size:15px;">₹{{ order.order_total|floatformat:0 }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Update -->
+        <div class="panel-card p-4">
+            <h5 class="fw-bold mb-3 text-navy"><i class="fas fa-edit me-2 text-warning"></i>Update Order Status</h5>
+            <form method="post" class="d-flex align-items-center gap-3">
+                {% csrf_token %}
+                <div class="flex-grow-1">
+                    <select name="status" class="form-select form-select-lg">
+                        {% for value, name in status_choices %}
+                        <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg px-4">
+                    <i class="fas fa-save me-2"></i>Update Status
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Customer & Shipping Info -->
+    <div class="col-lg-4">
+        <div class="panel-card p-4">
+            <h5 class="fw-bold mb-4 text-navy"><i class="fas fa-user-circle me-2 text-secondary"></i>Customer Information</h5>
+
+            <!-- Name -->
+            <div class="mb-4">
+                <label class="text-uppercase text-muted fw-bold small d-block mb-1">Name</label>
+                <div class="fw-semibold text-navy" style="font-size:15px;">{{ order.first_name }} {{ order.last_name }}</div>
+                {% if order.user %}
+                <small class="text-muted"><i class="fas fa-user me-1"></i>{{ order.user.username }}</small>
+                {% else %}
+                <small class="badge bg-light text-dark border">Guest Customer</small>
+                {% endif %}
+            </div>
+
+            <!-- Contact -->
+            <div class="mb-4">
+                <label class="text-uppercase text-muted fw-bold small d-block mb-1">Contact Details</label>
+                <div style="font-size:13px;"><i class="fas fa-envelope text-muted me-2"></i>{{ order.email }}</div>
+                <div class="mt-1" style="font-size:13px;"><i class="fas fa-phone text-muted me-2"></i>{{ order.phone }}</div>
+            </div>
+
+            <!-- Address -->
+            <div class="mb-4">
+                <label class="text-uppercase text-muted fw-bold small d-block mb-1">Shipping Address</label>
+                <div class="border rounded-2 p-3" style="background:#f8fafc; font-size:13px;">
+                    <div class="fw-semibold text-navy">{{ order.address }}</div>
+                    <div>{{ order.city }}, {{ order.state }}</div>
+                    <div>{{ order.country }}</div>
+                </div>
+            </div>
+
+            <!-- Dates -->
+            <div class="border-top pt-3">
+                <label class="text-uppercase text-muted fw-bold small d-block mb-2">Order Dates</label>
+                <div class="d-flex align-items-start gap-2 mb-2" style="font-size:13px;">
+                    <i class="fas fa-calendar-alt text-muted mt-1"></i>
+                    <div>
+                        <div class="text-muted" style="font-size:11px; text-transform:uppercase; letter-spacing:.04em; font-weight:700;">Placed On</div>
+                        <div class="fw-semibold text-navy">{% if order.created_at %}{{ order.created_at|date:"d M Y" }}{% endif %}</div>
+                        <div class="text-muted" style="font-size:12px;">{% if order.created_at %}{{ order.created_at|date:"h:i A" }}{% endif %}</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-start gap-2" style="font-size:13px;">
+                    <i class="fas fa-clock text-muted mt-1"></i>
+                    <div>
+                        <div class="text-muted" style="font-size:11px; text-transform:uppercase; letter-spacing:.04em; font-weight:700;">Last Updated</div>
+                        <div class="fw-semibold text-navy">{% if order.updated_at %}{{ order.updated_at|date:"d M Y" }}{% endif %}</div>
+                        <div class="text-muted" style="font-size:12px;">{% if order.updated_at %}{{ order.updated_at|date:"h:i A" }}{% endif %}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}Users - MiniMart Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Users</h1>
+        <p class="text-muted mb-0">Registered MiniMart customers and staff accounts.</p>
+    </div>
+</div>
+
+<!-- Search Form -->
+<div class="panel-card p-3 mb-4">
+    <form method="get" class="row g-3 align-items-center">
+        <div class="col-md-9">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                <input type="text" name="search" class="form-control border-start-0 ps-0" placeholder="Search users by username, email, first or last name..." value="{{ search_query }}">
+            </div>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1"><i class="fas fa-search me-2"></i>Search</button>
+            {% if search_query %}
+                <a href="{% url 'adminpanel:user_list' %}" class="btn btn-outline-secondary" title="Clear Search"><i class="fas fa-times"></i></a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<div class="panel-card">
+    <div class="table-responsive">
+        <table class="table admin-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Date Joined</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user_item in users %}
+                <tr>
+                    <td class="fw-semibold">{{ user_item.username }}</td>
+                    <td>{{ user_item.email|default:"-" }}</td>
+                    <td>
+                        {% if user_item.is_staff %}
+                            <span class="badge bg-primary"><i class="fas fa-user-shield me-1"></i>Staff</span>
+                        {% else %}
+                            <span class="badge bg-secondary"><i class="fas fa-user me-1"></i>Customer</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user_item.is_active %}
+                            <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Active</span>
+                        {% else %}
+                            <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user_item.date_joined|date:"Y-m-d H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-5">No users found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

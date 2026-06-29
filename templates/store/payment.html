@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Payment" %} - MiniMart{% endblock %}
+
+{% block content %}
+<div class="my-3">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">{% trans "Payment" %}</h1>
+        <p class="text-muted">{% trans "Please select your preferred payment method to complete the purchase." %}</p>
+    </div>
+    <form action="{% url 'process_payment' order.order_number %}" method="POST" id="payment-form">
+        {% csrf_token %}
+        <div class="row g-5 justify-content-center">
+            <!-- Payment Options -->
+            <div class="col-md-7 col-lg-6">
+                <h4 class="mb-3 fw-semibold">{% trans "Payment Options" %}</h4>
+                <div class="my-3 list-group">
+                    <label class="list-group-item list-group-item-action d-flex gap-3">
+                        <input name="paymentMethod" type="radio" class="form-check-input flex-shrink-0" value="COD" checked>
+                        <span>
+                            <strong class="d-block">{% trans "Cash on Delivery" %}</strong>
+                            <small class="text-muted">{% trans "Pay with cash upon delivery." %}</small>
+                        </span>
+                    </label>
+                    <label class="list-group-item list-group-item-action d-flex gap-3">
+                        <input name="paymentMethod" type="radio" class="form-check-input flex-shrink-0" value="CARD">
+                        <span>
+                            <strong class="d-block">{% trans "Credit / Debit Card" %}</strong>
+                            <small class="text-muted">{% trans "Secure payment with your card." %}</small>
+                        </span>
+                    </label>
+                    <label class="list-group-item list-group-item-action d-flex gap-3">
+                        <input name="paymentMethod" type="radio" class="form-check-input flex-shrink-0" value="UPI">
+                        <span>
+                            <strong class="d-block">{% trans "UPI ID" %}</strong>
+                            <small class="text-muted">{% trans "Pay with your UPI ID." %}</small>
+                        </span>
+                    </label>
+                    <label class="list-group-item list-group-item-action d-flex gap-3">
+                        <input name="paymentMethod" type="radio" class="form-check-input flex-shrink-0" value="GPAY">
+                        <span>
+                            <strong class="d-block">{% trans "Google Pay (GPay)" %}</strong>
+                            <small class="text-muted">{% trans "Pay instantly using Google Pay." %}</small>
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Payment Details Input Form -->
+                <div class="card border shadow-sm p-4 mt-4 rounded-4" id="payment-details-container" style="display: none; background: #fafbfc;">
+                    <!-- Card Details -->
+                    <div id="details-CARD" class="payment-details-section" style="display: none;">
+                        <h5 class="fw-semibold mb-3 text-primary"><i class="bi bi-credit-card me-2"></i>{% trans "Enter Card Details" %}</h5>
+                        <div class="mb-3">
+                            <label class="form-label small fw-medium text-muted">{% trans "Cardholder Name" %}</label>
+                            <input type="text" class="form-control" name="card_name" placeholder="John Doe">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-medium text-muted">{% trans "Card Number" %}</label>
+                            <input type="text" class="form-control" name="card_number" placeholder="1234 5678 1234 5678" maxlength="19">
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label small fw-medium text-muted">{% trans "Expiration Date" %}</label>
+                                <input type="text" class="form-control" name="card_expiry" placeholder="MM/YY" maxlength="5">
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label small fw-medium text-muted">{% trans "CVV" %}</label>
+                                <input type="password" class="form-control" name="card_cvv" placeholder="123" maxlength="3">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- UPI Details -->
+                    <div id="details-UPI" class="payment-details-section" style="display: none;">
+                        <h5 class="fw-semibold mb-3 text-success"><i class="bi bi-qr-code me-2"></i>{% trans "Enter UPI ID" %}</h5>
+                        <div class="mb-3">
+                            <label class="form-label small fw-medium text-muted">{% trans "UPI ID" %}</label>
+                            <input type="text" class="form-control" name="upi_id" placeholder="username@bank">
+                            <small class="text-muted d-block mt-1">{% trans "Enter your virtual payment address (VPA) e.g., name@okaxis." %}</small>
+                        </div>
+                    </div>
+
+                    <!-- GPay Details -->
+                    <div id="details-GPAY" class="payment-details-section" style="display: none;">
+                        <h5 class="fw-semibold mb-3 text-danger"><i class="bi bi-wallet2 me-2"></i>{% trans "Enter GPay Details" %}</h5>
+                        <div class="mb-3">
+                            <label class="form-label small fw-medium text-muted">{% trans "Google Pay Mobile Number / UPI ID" %}</label>
+                            <input type="text" class="form-control" name="gpay_id" placeholder="9876543210 or username@okaxis">
+                            <small class="text-muted d-block mt-1">{% trans "Enter your GPay phone number or associated UPI ID." %}</small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-success btn-lg shadow-sm" type="submit">{% trans "Confirm Payment" %}</button>
+                    <a href="{% url 'request_cancellation' order.id %}" class="btn btn-outline-danger">{% trans "Cancel Order" %}</a>
+                </div>
+            </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const radios = document.querySelectorAll('input[name="paymentMethod"]');
+    const container = document.getElementById('payment-details-container');
+    const sections = document.querySelectorAll('.payment-details-section');
+
+    function toggleFields() {
+        const selected = document.querySelector('input[name="paymentMethod"]:checked').value;
+        
+        // Hide all input sections first
+        sections.forEach(sec => {
+            sec.style.display = 'none';
+            // Disable inputs in hidden sections so they are not validated/submitted
+            sec.querySelectorAll('input').forEach(inp => {
+                inp.disabled = true;
+                inp.required = false;
+            });
+        });
+
+        if (selected === 'COD') {
+            container.style.display = 'none';
+        } else {
+            container.style.display = 'block';
+            const activeSection = document.getElementById('details-' + selected);
+            if (activeSection) {
+                activeSection.style.display = 'block';
+                activeSection.querySelectorAll('input').forEach(inp => {
+                    inp.disabled = false;
+                    inp.required = true;
+                });
+            }
+        }
+    }
+
+    radios.forEach(radio => {
+        radio.addEventListener('change', toggleFields);
+    });
+
+    // Run once on load
+    toggleFields();
+});
+</script>
+
+            <!-- Order Summary -->
+            <div class="col-md-5 col-lg-4">
+                <h4 class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-primary fw-semibold">{% trans "Order Summary" %}</span>
+                    <span class="badge bg-primary rounded-pill">{{ order_items.count }}</span>
+                </h4>
+                <ul class="list-group mb-3">
+                    {% for item in order_items %}
+                    <li class="list-group-item d-flex justify-content-between lh-sm">
+                        <div>
+                            <h6 class="my-0 fw-semibold">{{ item.product.translated_name }}</h6>
+                            <small class="text-muted">{% trans "Quantity:" %} {{ item.quantity }}</small>
+                        </div>
+                        <span class="text-muted">₹{{ item.product_price|floatformat:0 }}</span>
+                    </li>
+                    {% endfor %}
+                    <li class="list-group-item d-flex justify-content-between bg-light">
+                        <div class="text-secondary">
+                            <h6 class="my-0">{% trans "Original Price" %}</h6>
+                        </div>
+                        <span class="text-secondary">₹{{ original_total|floatformat:0 }}</span>
+                    </li>
+                    {% if discount > 0 %}
+                    <li class="list-group-item d-flex justify-content-between bg-light">
+                        <div class="text-success">
+                            <h6 class="my-0">{% trans "Discount" %}</h6>
+                        </div>
+                        <span class="text-success">− ₹{{ discount|floatformat:0 }}</span>
+                    </li>
+                    {% endif %}
+                    <li class="list-group-item d-flex justify-content-between bg-light">
+                        <div class="text-secondary">
+                            <h6 class="my-0">{% trans "Delivery Charge" %}</h6>
+                        </div>
+                        <span class="text-secondary">
+                            {% if total_delivery_charge > 0 %}
+                                ₹{{ total_delivery_charge|floatformat:0 }}
+                            {% else %}
+                                {% trans "FREE" %}
+                            {% endif %}
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>{% trans "Total (INR)" %}</span>
+                        <strong>₹{{ order.order_total|floatformat:0 }}</strong>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

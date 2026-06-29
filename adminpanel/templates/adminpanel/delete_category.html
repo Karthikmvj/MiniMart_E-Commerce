@@ -1,0 +1,33 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}Delete Category - MiniMart Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title text-danger">Delete Category</h1>
+        <p class="text-muted mb-0">Confirm deletion of store category catalog.</p>
+    </div>
+    <a href="{% url 'adminpanel:category_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Categories
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="panel-card p-4 text-center">
+            <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+            <h4 class="fw-bold">Are you absolutely sure?</h4>
+            <p class="text-muted mb-4">
+                You are about to delete the category: <strong class="text-dark">{{ category.category_name }}</strong>.<br>
+                Deleting this category may affect products linked to it.
+            </p>
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger px-4 py-2 fw-semibold me-2">Confirm Delete</button>
+                <a href="{% url 'adminpanel:category_list' %}" class="btn btn-light px-4 py-2 border">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

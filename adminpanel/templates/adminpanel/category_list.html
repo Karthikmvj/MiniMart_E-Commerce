@@ -1,0 +1,57 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}Categories - MiniMart Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="page-title">Categories</h1>
+        <p class="text-muted mb-0">Manage store categories, slugs, and banners.</p>
+    </div>
+    <a href="{% url 'adminpanel:add_category' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Add New Category
+    </a>
+</div>
+
+<div class="panel-card">
+    <div class="table-responsive">
+        <table class="table admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Category Name</th>
+                    <th>Slug</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                <tr>
+                    <td>{{ category.id }}</td>
+                    <td>
+                        {% if category.category_image %}
+                            <img src="{{ category.category_image.url }}" alt="{{ category.category_name }}" width="54" height="54" class="img-thumbnail object-fit-cover">
+                        {% else %}
+                            <span class="text-muted">No Image</span>
+                        {% endif %}
+                    </td>
+                    <td class="fw-semibold">{{ category.category_name }}</td>
+                    <td><code>{{ category.slug }}</code></td>
+                    <td class="text-muted small">{{ category.description|truncatechars:60 }}</td>
+                    <td class="text-nowrap">
+                        <a href="{% url 'adminpanel:edit_category' category.pk %}" class="btn btn-sm btn-warning" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+                        <a href="{% url 'adminpanel:delete_category' category.id %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-5">No categories available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'accounts/base_account.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Delete Address" %} - MiniMart{% endblock %}
+
+{% block account_content %}
+<div class="card border-0">
+    <div class="card-header bg-danger text-white py-3 rounded-top">
+        <h5 class="mb-0 fw-bold">{% trans "Delete Address" %}</h5>
+    </div>
+    <div class="card-body p-4 text-center">
+        <i class="bi bi-exclamation-triangle-fill text-danger fs-1 mb-3"></i>
+        <h4 class="fw-bold mb-3">{% trans "Are you sure?" %}</h4>
+        <p class="text-muted mb-4">
+            {% trans "You are about to delete the following address from your address book:" %}<br>
+            <strong class="text-dark">{{ address.address_line_1 }}, {{ address.city }}</strong>
+        </p>
+        <form method="post">
+            {% csrf_token %}
+            <a href="{% url 'address_book' %}" class="btn btn-secondary px-4 me-2">{% trans "Cancel" %}</a>
+            <button type="submit" class="btn btn-danger px-4">{% trans "Delete Address" %}</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

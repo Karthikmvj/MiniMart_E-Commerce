@@ -1,0 +1,78 @@
+{% extends 'accounts/base_account.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Order History" %} - MiniMart{% endblock %}
+
+{% block account_content %}
+<div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+    <h2 class="fw-bold mb-0">{% trans "My Orders" %}</h2>
+</div>
+
+{% if orders %}
+<div class="accordion" id="orderAccordion">
+    {% for order in orders %}
+    <div class="accordion-item mb-3 border rounded-3 shadow-sm">
+        <h2 class="accordion-header" id="heading{{ order.id }}">
+            <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ order.id }}" aria-expanded="false" aria-controls="collapse{{ order.id }}">
+                <div class="d-flex w-100 justify-content-between align-items-center pe-3">
+                    <div>
+                        <strong class="d-block">{% trans "Order #" %}{{ order.order_number }}</strong>
+                        <small class="text-muted">{% trans "Placed on" %} {{ order.created_at|date:"d M, Y" }}</small>
+                    </div>
+                    <div class="text-end">
+                        <strong class="d-block">₹{{ order.order_total|floatformat:0 }}</strong>
+                        <span class="badge" style="background-color: #e3f2fd; color: #0d6efd;">{{ order.get_status_display }}</span>
+                    </div>
+                </div>
+            </button>
+        </h2>
+        <div id="collapse{{ order.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ order.id }}" data-bs-parent="#orderAccordion">
+            <div class="accordion-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h6 class="fw-bold">{% trans "Items in this order" %}</h6>
+                        {% for item in order.items.all %}
+                        <div class="d-flex mb-3">
+                            <img src="{% if item.product.images %}{{ item.product.images.url }}{% else %}https://placehold.co/100x100?text=No+Image{% endif %}" width="60" height="60" class="rounded me-3" style="object-fit: cover;" alt="{{ item.product.translated_name }}">
+                            <div>
+                                <a href="{{ item.product.get_url }}" class="text-dark fw-bold text-decoration-none">{{ item.product.translated_name }}</a>
+                                <div class="text-muted">
+                                    <span>{% trans "Qty:" %} {{ item.quantity }}</span> | <span>₹{{ item.product_price|floatformat:0 }}</span>
+                                </div>
+                                {% if order.status == 'Completed' or order.status == 'Delivered' %}
+                                <div class="mt-1">
+                                    <a href="{{ item.product.get_url }}#reviews" class="btn btn-sm btn-outline-warning py-0 px-2 fw-semibold" style="font-size: 0.75rem;"><i class="bi bi-star-fill me-1"></i>{% trans "Write a Review" %}</a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="fw-bold">{% trans "Shipping Address" %}</h6>
+                        <address class="mb-3" style="font-style: normal;">
+                            {{ order.first_name }} {{ order.last_name }}<br>
+                            {{ order.address }}<br>
+                            {{ order.city }}, {{ order.state }}<br>
+                            {{ order.country }}<br>
+                            {% trans "Phone:" %} {{ order.phone }}
+                        </address>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'track_order' %}?order_number={{ order.order_number }}" class="btn btn-sm btn-primary">{% trans "Track Order" %}</a>
+                            <a href="{% url 'order_invoice' order.id %}" class="btn btn-sm btn-outline-secondary">{% trans "View Invoice" %}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center text-muted p-5 border rounded-3">
+    <i class="bi bi-cart-x fs-1"></i>
+    <p class="mt-3">{% trans "You haven't placed any orders yet." %}</p>
+    <a href="{% url 'product_list' %}" class="btn btn-primary">{% trans "Start Shopping" %}</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="my-3">
+    <h2 class="mb-4">{% trans "Shopping Cart" %}</h2>
+    
+    {% if not cart_items %}
+        <div class="alert alert-info" role="alert">
+            {% trans "Your cart is currently empty." %}
+        </div>
+        <a href="{% url 'home' %}" class="btn btn-primary">{% trans "Continue Shopping" %}</a>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">{% trans "Product" %}</th>
+                        <th scope="col">{% trans "Price" %}</th>
+                        <th scope="col">{% trans "Quantity" %}</th>
+                        <th scope="col">{% trans "Subtotal" %}</th>
+                        <th scope="col">{% trans "Action" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="{{ item.product.images.url }}" alt="{{ item.product.translated_name }}" width="60" class="img-thumbnail me-3">
+                                <a href="{{ item.product.get_url }}" class="text-decoration-none text-dark fw-bold">{{ item.product.translated_name }}</a>
+                            </div>
+                        </td>
+                        <td>₹{{ item.product.price }}</td>
+                        <td>
+                            <!-- Update Quantity Controls -->
+                            <div class="input-group" style="width: 120px;">
+                                <a href="{% url 'remove_cart' item.product.id %}" class="btn btn-outline-secondary btn-sm" type="button">-</a>
+                                <input type="text" class="form-control text-center form-control-sm" value="{{ item.quantity }}" readonly>
+                                <a href="{% url 'add_cart' item.product.id %}" class="btn btn-outline-secondary btn-sm" type="button">+</a>
+                            </div>
+                        </td>
+                        <td>₹{{ item.sub_total }}</td>
+                        <td>
+                            <!-- Remove from Cart -->
+                            <a href="{% url 'remove_cart_item' item.product.id %}" class="btn btn-danger btn-sm" onclick="return confirm('{% trans "Are you sure you want to remove this item?" %}')">{% trans "Remove" %}</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="d-flex flex-column align-items-end mt-4">
+            <!-- Calculate Total Amount -->
+            <h4 class="mb-3">{% trans "Total Amount:" %} <span class="text-success fw-bold">₹{{ total }}</span></h4>
+            <div>
+                <a href="{% url 'home' %}" class="btn btn-secondary me-2">{% trans "Continue Shopping" %}</a>
+                <a href="{% url 'checkout' %}" class="btn btn-success">{% trans "Proceed to Checkout" %}</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

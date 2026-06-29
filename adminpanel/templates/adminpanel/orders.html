@@ -1,0 +1,108 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}Orders - MiniMart Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Order List</h1>
+        <p class="text-muted mb-0" style="font-size:13px;">Track order totals, customers, status, and creation dates.</p>
+    </div>
+</div>
+
+<!-- Search & Filter -->
+<div class="panel-card p-3 mb-4">
+    <form method="get" class="row g-3 align-items-center">
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                <input type="text" name="search" class="form-control border-start-0 ps-0"
+                       placeholder="Search by number, customer, email, phone..."
+                       value="{{ search_query }}">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                {% for value, name in status_choices %}
+                <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1">
+                <i class="fas fa-filter me-2"></i>Filter
+            </button>
+            {% if search_query or status_filter %}
+            <a href="{% url 'adminpanel:order_list' %}" class="btn btn-outline-secondary" title="Clear Filters">
+                <i class="fas fa-times"></i>
+            </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Orders Table -->
+<div class="panel-card">
+    <div class="table-responsive">
+        <table class="table admin-table align-middle">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Order Number</th>
+                    <th>Customer</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Order Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td class="text-muted" style="font-size:12px;">{{ forloop.counter }}</td>
+                    <td class="fw-semibold" style="font-size:13px; letter-spacing:.02em;">{{ order.order_number }}</td>
+                    <td>
+                        <div class="fw-semibold" style="font-size:13px;">{{ order.first_name }} {{ order.last_name }}</div>
+                        <div class="text-muted" style="font-size:11px;">{{ order.email }}</div>
+                    </td>
+                    <td class="fw-bold" style="font-size:13px;">₹{{ order.order_total|floatformat:0 }}</td>
+                    <td>
+                        <span class="badge px-2 py-1"
+                            style="font-size:11px; font-weight:700;
+                            {% if order.status == 'Delivered' %}background:#dcfce7;color:#15803d;
+                            {% elif order.status == 'Cancelled' %}background:#fee2e2;color:#b91c1c;
+                            {% elif order.status == 'Shipped' %}background:#dbeafe;color:#1d4ed8;
+                            {% elif order.status == 'Processing' %}background:#e0e7ff;color:#4338ca;
+                            {% else %}background:#fef9c3;color:#854d0e;{% endif %}">
+                            {% if order.status == 'Delivered' %}<i class="fas fa-check-circle me-1"></i>
+                            {% elif order.status == 'Cancelled' %}<i class="fas fa-times-circle me-1"></i>
+                            {% elif order.status == 'Shipped' %}<i class="fas fa-shipping-fast me-1"></i>
+                            {% elif order.status == 'Processing' %}<i class="fas fa-cog me-1"></i>
+                            {% else %}<i class="fas fa-clock me-1"></i>{% endif %}
+                            {{ order.status }}
+                        </span>
+                    </td>
+                    <td style="font-size:12px; white-space:nowrap;">
+                        <div class="fw-semibold">{{ order.created_at|date:"d M Y" }}</div>
+                        <div class="text-muted">{{ order.created_at|date:"h:i A" }}</div>
+                    </td>
+                    <td>
+                        <a href="{% url 'adminpanel:order_detail' order.id %}" class="btn btn-sm btn-outline-primary" title="View Details">
+                            <i class="fas fa-eye me-1"></i>View
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-5">
+                        <i class="fas fa-inbox d-block mb-2" style="font-size:2rem; opacity:.3;"></i>
+                        No orders found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

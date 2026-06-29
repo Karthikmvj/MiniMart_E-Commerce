@@ -1,0 +1,31 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}Add Offer - MiniMart Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Add Offer</h1>
+        <p class="text-muted mb-0">Create a new promotional offer.</p>
+    </div>
+    <a href="{% if request.GET.next %}{{ request.GET.next }}{% else %}{% url 'adminpanel:offer_list' %}{% endif %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>{% if request.GET.next %}Back{% else %}Back to Offers{% endif %}
+    </a>
+</div>
+
+<div class="panel-card form-card p-4">
+    <form method="post">
+        {% csrf_token %}
+        {% if request.GET.next %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+        {% endif %}
+        {{ form.as_p }}
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-save me-2"></i>Save Offer
+            </button>
+            <a href="{% if request.GET.next %}{{ request.GET.next }}{% else %}{% url 'adminpanel:offer_list' %}{% endif %}" class="btn btn-outline-danger px-4">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

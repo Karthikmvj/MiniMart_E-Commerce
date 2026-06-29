@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Terms & Conditions" %} - MiniMart{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-lg-8">
+        <article class="soft-card p-4 p-md-5">
+            <span class="badge bg-primary-subtle text-primary-emphasis rounded-pill mb-3">{% trans "Terms & Conditions" %}</span>
+            <h1 class="h2 fw-bold mb-3">{% trans "Shopping terms for MiniMart customers." %}</h1>
+            <p class="text-muted">{% trans "By placing an order on MiniMart, you agree to provide accurate information, review order details carefully, and use the site for lawful shopping purposes." %}</p>
+            <p class="text-muted mb-0">{% trans "Prices, stock availability, and product information may be updated from time to time. Please review your order summary before confirming payment." %}</p>
+        </article>
+    </div>
+</div>
+{% endblock %}

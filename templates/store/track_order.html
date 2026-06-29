@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Track Order" %} - MiniMart{% endblock %}
+
+{% block content %}
+<div class="my-3">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-truck me-2"></i>{% trans "Track Your Order" %}</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{% url 'track_order' %}" method="get" class="mb-4">
+                        <div class="input-group">
+                            <input type="text" name="order_number" class="form-control" placeholder="{% trans 'Enter Order Number' %}" value="{{ request.GET.order_number|default:'' }}" required>
+                            <button class="btn btn-primary" type="submit">{% trans "Track" %}</button>
+                        </div>
+                    </form>
+
+                    {% if order %}
+                        <div class="border-top pt-4 mt-4">
+                            <h4 class="fw-bold mb-3">{% trans "Order Status" %}</h4>
+                            <div class="row mb-3">
+                                <div class="col-sm-6">
+                                    <p class="mb-1 text-muted">{% trans "Order Number:" %}</p>
+                                    <h5 class="fw-semibold">#{{ order.order_number }}</h5>
+                                </div>
+                                <div class="col-sm-6 text-sm-end">
+                                    <p class="mb-1 text-muted">{% trans "Status:" %}</p>
+                                    <span class="badge bg-info text-dark fs-6">{{ order.get_status_display }}</span>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <h5 class="fw-bold mb-3">{% trans "Order Details" %}</h5>
+                            <div class="table-responsive">
+                                <table class="table table-borderless align-middle">
+                                    <thead>
+                                        <tr class="table-light">
+                                            <th>{% trans "Product" %}</th>
+                                            <th class="text-center">{% trans "Qty" %}</th>
+                                            <th class="text-end">{% trans "Price" %}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in order.items.all %}
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        {% if item.product.images %}
+                                                            <img src="{{ item.product.images.url }}" width="50" height="50" class="rounded me-3" style="object-fit: cover;" alt="{{ item.product.translated_name }}">
+                                                        {% else %}
+                                                            <div class="rounded me-3 bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; font-size: 0.8rem;">
+                                                                No Image
+                                                            </div>
+                                                        {% endif %}
+                                                        <div>
+                                                            <a href="{{ item.product.get_url }}" class="text-dark fw-bold text-decoration-none">{{ item.product.translated_name }}</a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-center">{{ item.quantity }}</td>
+                                                <td class="text-end">₹{{ item.product_price|floatformat:0 }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <hr>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold">{% trans "Shipped To" %}</h6>
+                                    <address class="text-muted" style="font-style: normal;">
+                                        {{ order.first_name }} {{ order.last_name }}<br>
+                                        {{ order.address }}<br>
+                                        {{ order.city }}, {{ order.state }}<br>
+                                        {{ order.country }}<br>
+                                        {% trans "Phone:" %} {{ order.phone }}
+                                    </address>
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <h6 class="fw-bold">{% trans "Total" %}</h6>
+                                    <h3 class="text-primary fw-bold">₹{{ order.order_total|floatformat:0 }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    {% elif request.GET.order_number %}
+                        <div class="alert alert-warning mt-4" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>{% trans "No order selected or found." %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}Update Stock - MiniMart Admin{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div>
+        <h1 class="page-title d-flex align-items-center">
+            <a href="{% url 'adminpanel:product_list' %}" class="btn btn-light btn-sm border me-3" style="background-color: #f8fafc; border-color: #e2e8f0!important; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px;">
+                <i class="fas fa-arrow-left"></i>
+            </a>Update Stock
+        </h1>
+        <p class="text-muted mb-0">Adjust inventory quantity for {{ product.product_name }}.</p>
+    </div>
+</div>
+
+<div class="panel-card form-card p-4">
+    <div class="row g-4 align-items-start">
+        <div class="col-lg-4">
+            {% if product.images %}
+                <img src="{{ product.images.url }}" alt="{{ product.product_name }}" class="img-fluid rounded border">
+            {% endif %}
+            <h4 class="fw-bold mt-3 mb-1">{{ product.product_name }}</h4>
+            <p class="text-muted mb-1">Price: ₹{{ product.price }}</p>
+            <p class="mb-0">Current Stock: <span class="badge bg-primary">{{ product.stock }}</span></p>
+        </div>
+        <div class="col-lg-8">
+            <form method="post">
+                {% csrf_token %}
+                <label for="stock">New Stock Quantity</label>
+                <input type="number" id="stock" name="stock" min="0" value="{{ product.stock }}" required>
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save me-2"></i>Update Stock
+                    </button>
+                    <a href="{% url 'adminpanel:product_list' %}" class="btn btn-outline-danger px-4">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,551 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}MiniMart - Home{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0 mb-5">
+    <!-- Hero Section Slider -->
+    <style>
+        /* ===========================
+   Carousel Container
+=========================== */
+        .fk-carousel {
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(23, 35, 55, 0.1);
+        }
+
+        /* ===========================
+   Common Carousel Controls
+=========================== */
+        .fk-carousel-control {
+            width: 5%;
+            height: 100px;
+            margin: auto 0;
+
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 4px;
+
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Show controls on hover */
+        .fk-carousel:hover .fk-carousel-control {
+            opacity: 1;
+
+        }
+
+        /* ===========================
+   Previous Button
+=========================== */
+        .fk-carousel-control-prev {
+            left: 0;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===========================
+   Next Button
+=========================== */
+        .fk-carousel-control-next {
+            right: 0;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===========================
+   Control Icons
+=========================== */
+        .fk-carousel-control-icon {
+            color: #000;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+    </style>
+
+    <div id="heroCarousel" class="carousel slide fk-carousel mb-5" data-bs-ride="carousel" data-bs-interval="3000">
+        <!-- Indicators -->
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true"
+                aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        </div>
+
+        <div class="carousel-inner">
+            {% for product in recent_products|slice:":3" %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <a href="{{ product.get_url }}" class="d-block position-relative">
+                    <img src="{% if product.images %}{{ product.images.url }}{% else %}https://placehold.co/1200x300/f3f6fb/172337?text=MiniMart+Featured+Product{% endif %}"
+                        class="d-block w-100" style="object-fit: cover; height: 320px;"
+                        alt="{{ product.translated_name }}">
+                    <div class="position-absolute top-0 start-0 w-100 h-100"
+                        style="background: linear-gradient(90deg, rgba(23,35,55,.78), rgba(23,35,55,.18), rgba(23,35,55,0));">
+                    </div>
+                    <div class="position-absolute top-50 start-0 translate-middle-y text-white p-4 p-md-5">
+                        <span class="badge bg-warning text-dark mb-2">MiniMart Deal</span>
+                        <h2 class="fw-bold mb-2">{{ product.translated_name }}</h2>
+                        <p class="mb-3">{% trans "Shop now at ₹" %}{{ product.price|floatformat:0 }}</p>
+                        <span class="btn btn-warning fw-bold">{% trans "View Product" %}</span>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="carousel-item active">
+                <a href="{% url 'product_list' %}">
+                    <img src="https://placehold.co/1200x300/f3f6fb/172337?text=MiniMart+Featured+Products"
+                        class="d-block w-100" style="object-fit: cover; height: 320px;"
+                        alt="MiniMart Featured Products">
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Navigation Buttons -->
+        <button class="carousel-control-prev fk-carousel-control fk-carousel-control-prev" type="button"
+            data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <i class="bi bi-chevron-left fk-carousel-control-icon"></i>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next fk-carousel-control fk-carousel-control-next" type="button"
+            data-bs-target="#heroCarousel" data-bs-slide="next">
+            <i class="bi bi-chevron-right fk-carousel-control-icon"></i>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+
+    <!-- Deals of the Day & Best Offers -->
+    <div class="row g-3 mb-5">
+        <!-- Deal of the Day -->
+        <div class="col-md-6">
+            <div class="bg-white p-3 shadow-sm rounded-2 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                    <h3 class="fw-bold fs-5 mb-0">{% trans "Deal of the Day" %}</h3>
+                    <a href="{% url 'product_list' %}?sort=newest"
+                        class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm">{% trans "View All" %}</a>
+                </div>
+                <div class="row g-2">
+                    {% for product in deals_of_the_day %}
+                    <div class="col-4 col-sm-4">
+                        <div class="card h-100 border-0 fk-product-card text-center p-2">
+                            <a href="{{ product.get_url }}">
+                                <img src="{% if product.images %}{{ product.images.url }}{% else %}https://placehold.co/200x200?text=No+Image{% endif %}"
+                                    class="img-fluid mb-2 fk-product-img" style="height: 100px;"
+                                    alt="{{ product.translated_name }}">
+                            </a>
+                            <div class="card-body p-0">
+                                <h6 class="card-title text-truncate mb-1" style="font-size: 0.8rem;">
+                                    <a href="{{ product.get_url }}" class="text-dark text-decoration-none">{{ product.translated_name }}</a>
+                                </h6>
+                                <div class="fw-bold" style="font-size: 0.85rem;">{% trans "Now ₹" %}{{ product.price|floatformat:0 }}
+                                </div>
+                                {% if product.original_price and product.original_price > product.price %}
+                                <small class="text-muted text-decoration-line-through">₹{{ product.original_price|floatformat:0 }}</small>
+                                <small class="text-success fw-bold d-block">{{ product.discount_percentage }}% {% trans "off" %}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Best Offers -->
+        <div class="col-md-6">
+            <div class="bg-white p-3 shadow-sm rounded-2 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                    <h3 class="fw-bold fs-5 mb-0">{% trans "Best Offers" %}</h3>
+                    <a href="{% url 'product_list' %}?sort=price_low"
+                        class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm">{% trans "View All" %}</a>
+                </div>
+                <div class="row g-2">
+                    {% for product in best_offers %}
+                    <div class="col-4 col-sm-4">
+                        <div class="card h-100 border-0 fk-product-card text-center p-2">
+                            <a href="{{ product.get_url }}">
+                                <img src="{% if product.images %}{{ product.images.url }}{% else %}https://placehold.co/200x200?text=No+Image{% endif %}"
+                                    class="img-fluid mb-2 fk-product-img" style="height: 100px;"
+                                    alt="{{ product.translated_name }}">
+                            </a>
+                            <div class="card-body p-0">
+                                <h6 class="card-title text-truncate mb-1" style="font-size: 0.8rem;">
+                                    <a href="{{ product.get_url }}" class="text-dark text-decoration-none">{{ product.translated_name }}</a>
+                                </h6>
+                                <div class="fw-bold" style="font-size: 0.85rem;">{% trans "Now ₹" %}{{ product.price|floatformat:0 }}
+                                </div>
+                                {% if product.original_price and product.original_price > product.price %}
+                                <small class="text-muted text-decoration-line-through">₹{{ product.original_price|floatformat:0 }}</small>
+                                <small class="text-success fw-bold d-block">{{ product.discount_percentage }}% {% trans "off" %}</small>
+                                {% else %}
+                                <small class="text-success fw-bold d-block">{% trans "Best Offer" %}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Products -->
+    <style>
+        .fk-product-card {
+            transition: box-shadow 0.2s ease-in-out;
+            border-radius: 8px;
+        }
+
+        .fk-product-card:hover {
+            box-shadow: 0 10px 28px rgba(23, 35, 55, .15) !important;
+        }
+
+        .fk-product-img {
+            height: 180px;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .fk-product-card:hover .fk-product-img {
+            transform: scale(1.05);
+        }
+
+        .fk-wishlist-btn {
+            color: #c2c2c2;
+            transition: color 0.2s;
+            z-index: 2;
+        }
+
+        .fk-wishlist-btn:hover {
+            color: var(--mini-red);
+        }
+    </style>
+
+    {% if featured_products %}
+    <div class="bg-white p-3 shadow-sm rounded-2 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+            <h3 class="fw-bold fs-4 mb-0">{% trans "Featured Products" %}</h3>
+            <a href="{% url 'product_list' %}" class="btn btn-primary rounded-pill px-4 shadow-sm">{% trans "View All" %}</a>
+        </div>
+        <div class="row g-3">
+            {% for product in featured_products %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="card h-100 border-0 fk-product-card shadow-sm position-relative">
+                    <!-- Wishlist Button -->
+                    {% if product.id in wishlist_product_ids %}
+                    <a href="{% url 'remove_wishlist' product.id %}"
+                        class="position-absolute top-0 end-0 m-2 text-danger fk-wishlist-btn"
+                        title="{% trans 'Remove from Wishlist' %}">
+                        <i class="bi bi-heart-fill fs-5"></i>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'add_wishlist' product.id %}"
+                        class="position-absolute top-0 end-0 m-2 text-secondary fk-wishlist-btn"
+                        title="{% trans 'Add to Wishlist' %}">
+                        <i class="bi bi-heart fs-5"></i>
+                    </a>
+                    {% endif %}
+
+                    <a href="{{ product.get_url }}" class="text-center p-3">
+                        <img src="{% if product.images %}{{ product.images.url }}{% else %}https://placehold.co/400x400?text=No+Image{% endif %}"
+                            class="card-img-top fk-product-img" alt="{{ product.translated_name }}">
+                    </a>
+                    <div class="card-body d-flex flex-column pt-0">
+                        <h6 class="card-title text-truncate mb-1" style="font-size: 0.95rem;">
+                            <a href="{{ product.get_url }}" class="text-dark text-decoration-none">{{ product.translated_name }}</a>
+                        </h6>
+
+                        <!-- Rating Badge, Brand & Colors -->
+                        <div class="mb-2 d-flex flex-wrap align-items-center gap-1">
+                            <span class="badge bg-success rounded-1 px-2 py-1">
+                                {{ product.avg_rating|default:"4.5"|floatformat:1 }} <i class="bi bi-star-fill"
+                                    style="font-size: 0.65rem;"></i>
+                            </span>
+                            <span class="text-muted ms-1" style="font-size: 0.85rem;">({{ product.num_reviews|default:"0" }})</span>
+                            {% if product.brand %}
+                            <span class="badge bg-light text-dark border">{{ product.brand.translated_name }}</span>
+                            {% endif %}
+                        </div>
+
+
+                        <!-- Price and Discount -->
+                        <div class="mb-3">
+                            {% if product.original_price and product.original_price > product.price %}
+                            <small class="text-muted d-block">{% trans "Original Price:" %} <span
+                                    class="text-decoration-line-through">₹{{ product.original_price|floatformat:0 }}</span></small>
+                            <span class="fw-bold fs-5 text-dark">{% trans "Offer:" %} ₹{{ product.price|floatformat:0 }}</span>
+                            <span class="badge bg-success ms-2">{{ product.discount_percentage }}% {% trans "OFF" %}</span>
+                            {% else %}
+                            <span class="fw-bold fs-5 text-dark">{% trans "Price:" %} ₹{{ product.price|floatformat:0 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="mt-auto d-flex gap-2">
+                            <a href="{% url 'add_cart' product.id %}"
+                                class="btn fk-btn-cart flex-fill shadow-sm fw-bold"><i
+                                    class="bi bi-cart-plus me-1"></i>{% trans "Cart" %}</a>
+                            <a href="{% url 'buy_now' product.id %}"
+                                class="btn fk-btn-buy flex-fill shadow-sm fw-bold"><i
+                                    class="bi bi-lightning-fill me-1"></i>{% trans "Buy" %}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Trending Products Slider -->
+    {% if trending_products %}
+    <div class="bg-white p-3 shadow-sm rounded-2 mb-5 position-relative">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+            <h3 class="fw-bold fs-4 mb-0">{% trans "Trending Products" %}</h3>
+            <a href="{% url 'product_list' %}?sort=rating" class="btn btn-primary rounded-pill px-4 shadow-sm">{% trans "View All" %}</a>
+        </div>
+
+        <div id="trendingCarousel" class="carousel slide" data-bs-ride="false">
+            <div class="carousel-inner">
+                {% for chunk in trending_products %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <div class="row g-3">
+                        {% for product in chunk %}
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <div class="card h-100 border-0 fk-product-card shadow-sm position-relative">
+                                <!-- Wishlist Button -->
+                                {% if product.id in wishlist_product_ids %}
+                                <a href="{% url 'remove_wishlist' product.id %}"
+                                    class="position-absolute top-0 end-0 m-2 text-danger fk-wishlist-btn"
+                                    title="{% trans 'Remove from Wishlist' %}">
+                                    <i class="bi bi-heart-fill fs-5"></i>
+                                </a>
+                                {% else %}
+                                <a href="{% url 'add_wishlist' product.id %}"
+                                    class="position-absolute top-0 end-0 m-2 text-secondary fk-wishlist-btn"
+                                    title="{% trans 'Add to Wishlist' %}">
+                                    <i class="bi bi-heart fs-5"></i>
+                                </a>
+                                {% endif %}
+
+                                <a href="{{ product.get_url }}" class="text-center p-3">
+                                    <img src="{% if product.images %}{{ product.images.url }}{% else %}https://placehold.co/400x400?text=No+Image{% endif %}"
+                                        class="card-img-top fk-product-img" alt="{{ product.translated_name }}">
+                                </a>
+                                <div class="card-body d-flex flex-column pt-0">
+                                    <h6 class="card-title text-truncate mb-1" style="font-size: 0.95rem;">
+                                        <a href="{{ product.get_url }}" class="text-dark text-decoration-none">{{ product.translated_name }}</a>
+                                    </h6>
+
+                                    <!-- Rating Badge, Brand & Colors -->
+                                    <div class="mb-2 d-flex flex-wrap align-items-center gap-1">
+                                        <span class="badge bg-success rounded-1 px-2 py-1">
+                                            {{ product.avg_rating|default:"4.5"|floatformat:1 }} <i
+                                                class="bi bi-star-fill" style="font-size: 0.65rem;"></i>
+                                        </span>
+                                        <span class="text-muted ms-1" style="font-size: 0.85rem;">({{ product.num_reviews|default:"0" }})</span>
+                                        {% if product.brand %}
+                                        <span class="badge bg-light text-dark border">{{ product.brand.translated_name }}</span>
+                                        {% endif %}
+                                    </div>
+
+
+                                    <!-- Price -->
+                                    <div class="mb-3">
+                                        {% if product.original_price and product.original_price > product.price %}
+                                        <small class="text-muted d-block">{% trans "Original Price:" %} <span
+                                                class="text-decoration-line-through">₹{{ product.original_price|floatformat:0 }}</span></small>
+                                        <span class="fw-bold fs-5 text-dark">{% trans "Offer:" %} ₹{{ product.price|floatformat:0 }}</span>
+                                        <span class="badge bg-success ms-2">{{ product.discount_percentage }}% {% trans "OFF" %}</span>
+                                        {% else %}
+                                        <span class="fw-bold fs-5 text-dark">{% trans "Price:" %} ₹{{ product.price|floatformat:0 }}</span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="mt-auto d-flex gap-2">
+                                        <a href="{{ product.get_url }}"
+                                            class="btn fk-btn-cart flex-fill shadow-sm fw-bold"><i
+                                                class="bi bi-eye me-1"></i>{% trans "View Product" %}</a>
+                                        <a href="{% url 'buy_now' product.id %}"
+                                            class="btn fk-btn-buy flex-fill shadow-sm fw-bold"><i
+                                                class="bi bi-lightning-fill me-1"></i>{% trans "Buy" %}</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Navigation Buttons -->
+            <button class="carousel-control-prev fk-carousel-control fk-carousel-control-prev" type="button"
+                data-bs-target="#trendingCarousel" data-bs-slide="prev"
+                style="width: 40px; height: 100px; top: 40%; transform: translateY(-50%);">
+                <i class="bi bi-chevron-left fk-carousel-control-icon"></i>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next fk-carousel-control fk-carousel-control-next" type="button"
+                data-bs-target="#trendingCarousel" data-bs-slide="next"
+                style="width: 40px; height: 100px; top: 40%; transform: translateY(-50%);">
+                <i class="bi bi-chevron-right fk-carousel-control-icon"></i>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Recent Products -->
+    <div class="bg-white p-3 shadow-sm rounded-2 mb-5 position-relative">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+            <h3 class="fw-bold fs-4 mb-0">{% trans "Latest Arrivals" %}</h3>
+            <a href="{% url 'product_list' %}?sort=newest" class="btn btn-primary rounded-pill px-4 shadow-sm">{% trans "View All" %}</a>
+        </div>
+        <div class="row g-3">
+            {% for product in recent_products %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="card h-100 border-0 fk-product-card shadow-sm position-relative">
+                    <!-- Wishlist Button -->
+                    {% if product.id in wishlist_product_ids %}
+                    <a href="{% url 'remove_wishlist' product.id %}"
+                        class="position-absolute top-0 end-0 m-2 text-danger fk-wishlist-btn"
+                        title="{% trans 'Remove from Wishlist' %}">
+                        <i class="bi bi-heart-fill fs-5"></i>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'add_wishlist' product.id %}"
+                        class="position-absolute top-0 end-0 m-2 text-secondary fk-wishlist-btn"
+                        title="{% trans 'Add to Wishlist' %}">
+                        <i class="bi bi-heart fs-5"></i>
+                    </a>
+                    {% endif %}
+
+                    <a href="{{ product.get_url }}" class="text-center p-3">
+                        <img src="{% if product.images %}{{ product.images.url }}{% else %}https://placehold.co/400x400?text=No+Image{% endif %}"
+                            class="card-img-top fk-product-img" alt="{{ product.translated_name }}">
+                    </a>
+                    <div class="card-body d-flex flex-column pt-0">
+                        <h6 class="card-title text-truncate mb-1" style="font-size: 0.95rem;">
+                            <a href="{{ product.get_url }}" class="text-dark text-decoration-none">{{ product.translated_name }}</a>
+                        </h6>
+
+                        <!-- Rating Badge, Brand & Colors -->
+                        <div class="mb-2 d-flex flex-wrap align-items-center gap-1">
+                            <span class="badge bg-success rounded-1 px-2 py-1">
+                                {{ product.avg_rating|default:"4.5"|floatformat:1 }} <i class="bi bi-star-fill"
+                                    style="font-size: 0.65rem;"></i>
+                            </span>
+                            <span class="text-muted ms-1" style="font-size: 0.85rem;">({{ product.num_reviews|default:"0" }})</span>
+                            {% if product.brand %}
+                            <span class="badge bg-light text-dark border">{{ product.brand.translated_name }}</span>
+                            {% endif %}
+                        </div>
+
+
+                        <!-- Price -->
+                        <div class="mb-3">
+                            {% if product.original_price and product.original_price > product.price %}
+                            <small class="text-muted d-block">{% trans "Original Price:" %} <span
+                                    class="text-decoration-line-through">₹{{ product.original_price|floatformat:0 }}</span></small>
+                            <span class="fw-bold fs-5 text-dark">{% trans "Offer:" %} ₹{{ product.price|floatformat:0 }}</span>
+                            <span class="badge bg-success ms-2">{{ product.discount_percentage }}% {% trans "OFF" %}</span>
+                            {% else %}
+                            <span class="fw-bold fs-5 text-dark">{% trans "Price:" %} ₹{{ product.price|floatformat:0 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="mt-auto d-flex gap-2">
+                            <a href="{% url 'add_cart' product.id %}"
+                                class="btn fk-btn-cart flex-fill shadow-sm fw-bold"><i
+                                    class="bi bi-cart-plus me-1"></i>{% trans "Cart" %}</a>
+                            <a href="{% url 'buy_now' product.id %}"
+                                class="btn fk-btn-buy flex-fill shadow-sm fw-bold"><i
+                                    class="bi bi-lightning-fill me-1"></i>{% trans "Buy" %}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recommended Products -->
+    {% if recommended_products %}
+    <div class="bg-white p-3 shadow-sm rounded-2 mb-5 position-relative">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+            <h3 class="fw-bold fs-4 mb-0">{% trans "Recommended For You" %}</h3>
+        </div>
+        <div class="row g-3">
+            {% for product in recommended_products %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="card h-100 border-0 fk-product-card shadow-sm position-relative">
+                    <!-- Wishlist Button -->
+                    {% if product.id in wishlist_product_ids %}
+                    <a href="{% url 'remove_wishlist' product.id %}"
+                        class="position-absolute top-0 end-0 m-2 text-danger fk-wishlist-btn"
+                        title="{% trans 'Remove from Wishlist' %}">
+                        <i class="bi bi-heart-fill fs-5"></i>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'add_wishlist' product.id %}"
+                        class="position-absolute top-0 end-0 m-2 text-secondary fk-wishlist-btn"
+                        title="{% trans 'Add to Wishlist' %}">
+                        <i class="bi bi-heart fs-5"></i>
+                    </a>
+                    {% endif %}
+
+                    <a href="{{ product.get_url }}" class="text-center p-3">
+                        <img src="{% if product.images %}{{ product.images.url }}{% else %}https://placehold.co/400x400?text=No+Image{% endif %}"
+                            class="card-img-top fk-product-img" alt="{{ product.translated_name }}">
+                    </a>
+                    <div class="card-body d-flex flex-column pt-0">
+                        <h6 class="card-title text-truncate mb-1" style="font-size: 0.95rem;">
+                            <a href="{{ product.get_url }}" class="text-dark text-decoration-none">{{ product.translated_name }}</a>
+                        </h6>
+
+                        <!-- Rating Badge, Brand & Colors -->
+                        <div class="mb-2 d-flex flex-wrap align-items-center gap-1">
+                            <span class="badge bg-success rounded-1 px-2 py-1">
+                                {{ product.avg_rating|default:"4.5"|floatformat:1 }} <i class="bi bi-star-fill"
+                                    style="font-size: 0.65rem;"></i>
+                            </span>
+                            <span class="text-muted ms-1" style="font-size: 0.85rem;">({{ product.num_reviews|default:"0" }})</span>
+                            {% if product.brand %}
+                            <span class="badge bg-light text-dark border">{{ product.brand.translated_name }}</span>
+                            {% endif %}
+                        </div>
+
+
+                        <!-- Price -->
+                        <div class="mb-3">
+                            {% if product.original_price and product.original_price > product.price %}
+                            <small class="text-muted d-block">{% trans "Original Price:" %} <span
+                                    class="text-decoration-line-through">₹{{ product.original_price|floatformat:0 }}</span></small>
+                            <span class="fw-bold fs-5 text-dark">{% trans "Offer:" %} ₹{{ product.price|floatformat:0 }}</span>
+                            <span class="badge bg-success ms-2">{{ product.discount_percentage }}% {% trans "OFF" %}</span>
+                            {% else %}
+                            <span class="fw-bold fs-5 text-dark">{% trans "Price:" %} ₹{{ product.price|floatformat:0 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="mt-auto d-flex gap-2">
+                            <a href="{% url 'add_cart' product.id %}"
+                                class="btn fk-btn-cart flex-fill shadow-sm fw-bold"><i
+                                    class="bi bi-cart-plus me-1"></i>{% trans "Cart" %}</a>
+                            <a href="{% url 'buy_now' product.id %}"
+                                class="btn fk-btn-buy flex-fill shadow-sm fw-bold"><i
+                                    class="bi bi-lightning-fill me-1"></i>{% trans "Buy" %}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

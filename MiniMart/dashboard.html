@@ -1,0 +1,25 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block content %}
+<h2 class="mb-4">Dashboard</h2>
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <div class="card text-white bg-primary shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="card-title text-uppercase fw-semibold"><i class="bi bi-box"></i> Total Products</h5>
+                <p class="card-text display-4">{{ product_count }}</p>
+                <a href="{% url 'adminpanel:product_list' %}" class="text-white text-decoration-none">View Products →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card text-white bg-success shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="card-title text-uppercase fw-semibold"><i class="bi bi-tags"></i> Total Categories</h5>
+                <p class="card-text display-4">{{ category_count }}</p>
+                <a href="{% url 'adminpanel:category_list' %}" class="text-white text-decoration-none">View Categories →</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

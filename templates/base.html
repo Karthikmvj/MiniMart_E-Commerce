@@ -1,0 +1,580 @@
+{% load static %}
+{% load i18n %}
+{% load i18n_helper %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ system_settings.store_name }} - Enterprise E-Commerce{% endblock %}</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --mini-navy: #0f172a;
+            --mini-navy-light: #1e293b;
+            --mini-blue: #3b82f6;
+            --mini-blue-hover: #2563eb;
+            --mini-orange: #f59e0b;
+            --mini-orange-hover: #d97706;
+            --mini-green: #10b981;
+            --mini-red: #ef4444;
+            --mini-bg: #f8fafc;
+            --mini-border: #e2e8f0;
+            --mini-text: #475569;
+            --mini-text-dark: #0f172a;
+            --mini-card-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.02);
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: var(--mini-bg);
+            color: var(--mini-text);
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+        }
+        main {
+            flex: 1;
+        }
+
+        a {
+            color: var(--mini-blue);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: var(--mini-blue-hover);
+        }
+
+        .minimart-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .minimart-logo {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .minimart-logo:hover {
+            transform: scale(1.1) rotate(-3deg);
+        }
+
+        .minimart-brand-text {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 1;
+            letter-spacing: -0.5px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .minimart-brand-text .brand-bold {
+            font-weight: 800;
+            background: linear-gradient(135deg, #FF5E3A, #FBBF24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-left: 1px;
+        }
+
+        .minimart-brand-sub {
+            display: block;
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            margin-top: 3px;
+        }
+
+        .fk-navbar {
+            background-color: rgba(15, 23, 42, 0.8) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 0.65rem 0;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .fk-navbar .navbar-brand {
+            font-weight: 700;
+            color: #fff !important;
+            display: flex;
+            align-items: center;
+        }
+        .fk-navbar .search-container {
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+            margin-right: 20px;
+        }
+        .fk-navbar .search-container input {
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.07);
+            color: #ffffff;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+        .fk-navbar .search-container input::placeholder {
+            color: #94a3b8;
+        }
+        .fk-navbar .search-container input:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.12);
+            border-color: var(--mini-orange);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+        }
+        .fk-navbar .search-container .search-btn {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            background: transparent;
+            border: none;
+            color: var(--mini-orange);
+            padding: 0 16px;
+            font-size: 1.1rem;
+            transition: color 0.2s ease;
+        }
+        .fk-navbar .search-container .search-btn:hover {
+            color: #fbbf24;
+        }
+        .fk-navbar .nav-link {
+            color: #e2e8f0 !important;
+            font-size: 14px;
+            font-weight: 600;
+            margin-left: 8px;
+            display: flex;
+            align-items: center;
+            border-radius: 8px;
+            padding: .45rem .65rem;
+            transition: all 0.2s ease;
+        }
+        .fk-navbar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff !important;
+        }
+        .fk-navbar .login-btn {
+            background-color: var(--mini-orange);
+            color: var(--mini-navy) !important;
+            border-radius: 8px;
+            padding: 0.4rem 1.2rem !important;
+            font-size: 14px;
+            font-weight: 700;
+            border: 1px solid var(--mini-orange);
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+        }
+        .fk-navbar .login-btn:hover {
+            background-color: #fbbf24;
+            border-color: #fbbf24;
+            transform: translateY(-1px);
+        }
+        .fk-navbar .dropdown-menu {
+            border-radius: 10px;
+            margin-top: 8px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+            border: 1px solid var(--mini-border);
+            font-size: 13px;
+            padding: 5px;
+        }
+        .fk-navbar .dropdown-item {
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background 0.15s ease;
+        }
+        .fk-navbar .dropdown-item:hover {
+            background-color: #f1f5f9;
+        }
+        .fk-navbar .cart-icon-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .fk-navbar .cart-badge {
+            position: absolute;
+            top: -5px;
+            left: 10px;
+            background-color: var(--mini-orange);
+            color: var(--mini-navy);
+            border: 1.5px solid var(--mini-navy);
+            min-width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .btn-primary,
+        .btn-success {
+            background: linear-gradient(135deg, var(--mini-blue), var(--mini-blue-hover));
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover,
+        .btn-success:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        }
+
+        .btn-warning,
+        .fk-btn-cart {
+            background: linear-gradient(135deg, var(--mini-orange), #fbbf24);
+            border: none;
+            color: var(--mini-navy);
+            font-size: 14px;
+            font-weight: 700;
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .btn-warning:hover,
+        .fk-btn-cart:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+            color: var(--mini-navy);
+        }
+
+        .fk-btn-buy {
+            background-color: var(--mini-blue);
+            border-color: var(--mini-blue);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .fk-btn-buy:hover {
+            background-color: var(--mini-blue-hover);
+            border-color: var(--mini-blue-hover);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        }
+
+        .card,
+        .soft-card,
+        .fk-sidebar,
+        .fk-category-ribbon {
+            border-radius: 12px !important;
+            border: 1px solid var(--mini-border) !important;
+            box-shadow: var(--mini-card-shadow) !important;
+            background-color: #ffffff;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .table thead th,
+        .table-light th {
+            background-color: var(--mini-navy) !important;
+            color: #fff !important;
+            border-color: var(--mini-navy) !important;
+        }
+
+        .badge.bg-success {
+            background-color: var(--mini-green) !important;
+        }
+
+        .fk-footer {
+            background-color: #0b0f19;
+            color: #94a3b8;
+            font-size: 14px;
+            border-top: 4px solid var(--mini-orange);
+            padding-top: 3rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+        .fk-footer a {
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.25s ease;
+        }
+        .fk-footer a:hover {
+            color: #ffffff;
+            text-decoration: none;
+        }
+        .fk-footer .footer-col-title {
+            color: #f1f5f9;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            font-weight: 800;
+            letter-spacing: .1em;
+        }
+        .fk-footer ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .fk-footer ul li {
+            margin-bottom: 8px;
+        }
+        .fk-footer .footer-bottom {
+            border-top: 1px solid #1e293b;
+            padding: 20px 0;
+            margin-top: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            color: #64748b;
+        }
+        .fk-footer .social-icons a {
+            color: #64748b;
+            font-size: 18px;
+            margin-left: 14px;
+            transition: all 0.2s ease;
+        }
+        .fk-footer .social-icons a:hover {
+            color: var(--mini-orange);
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Navbar -->
+    <nav class="navbar navbar-expand-lg fk-navbar sticky-top">
+        <div class="container-fluid px-0">
+            <a class="navbar-brand minimart-brand" href="{% url 'home' %}">
+                <span class="minimart-logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%" style="vertical-align: middle;">
+                        <defs>
+                            <linearGradient id="brandGradBase" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#FF5E3A" />
+                                <stop offset="100%" stop-color="#FFB800" />
+                            </linearGradient>
+                        </defs>
+                        <rect x="8" y="8" width="84" height="84" rx="22" fill="url(#brandGradBase)" />
+                        <path d="M 26 70 L 26 30 L 50 54 L 74 30 L 74 70" fill="none" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </span>
+                <span class="d-flex flex-column justify-content-center">
+                    <span class="minimart-brand-text">Mini<span class="brand-bold">Mart</span></span>
+                    <span class="minimart-brand-sub">{% trans "Smart Shopping" %}</span>
+                </span>
+            </a>
+            
+            <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <!-- Search Bar -->
+                <form class="d-flex mx-auto my-3 my-lg-0 search-container" action="{% url 'search' %}" method="GET">
+                    <input type="text" name="keyword" placeholder="{% trans 'Search for products, brands and more' %}" aria-label="{% trans 'Search' %}" value="{{ request.GET.keyword }}">
+                    <button class="search-btn" type="submit"><i class="bi bi-search"></i></button>
+                </form>
+
+                <!-- Right Navigation Links -->
+                <ul class="navbar-nav ms-auto align-items-center">
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}"><i class="bi bi-house-door me-1"></i>{% trans "Home" %}</a>
+                    </li>
+                    
+                    <!-- Language Switcher -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-globe me-1"></i>
+                            {% get_current_language as LANGUAGE_CODE %}
+                            {% if LANGUAGE_CODE == 'ta' %}தமிழ்{% else %}English{% endif %}
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+                            <li>
+                                <a class="dropdown-item {% if LANGUAGE_CODE == 'en' %}active{% endif %}" href="{{ request.get_full_path|translate_url:'en' }}">English</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {% if LANGUAGE_CODE == 'ta' %}active{% endif %}" href="{{ request.get_full_path|translate_url:'ta' }}">தமிழ்</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Categories Menu -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="categoryDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {% trans "Categories" %}
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
+                            {% for category in links %}
+                                <li><a class="dropdown-item" href="{{ category.get_url }}">{{ category.translated_name }}</a></li>
+                            {% endfor %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'product_list' %}">{% trans "All Products" %}</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- User Account / Login -->
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle fs-5 me-1"></i> {{ user.first_name|default:user.username|translate }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="bi bi-person me-2 text-primary"></i>{% trans "My Profile" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'order_history' %}"><i class="bi bi-box-seam me-2 text-primary"></i>{% trans "Orders" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'wishlist_view' %}"><i class="bi bi-heart me-2 text-primary"></i>{% trans "Wishlist" %}</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                
+                                <li><a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="bi bi-power me-2 text-danger"></i>{% trans "Logout" %}</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a href="{% url 'login' %}" class="nav-link login-btn shadow-sm">{% trans "Login" %}</a>
+                        </li>
+
+                    {% endif %}
+
+                    <!-- Wishlist Icon -->
+                    <li class="nav-item d-none d-lg-block">
+                        <a href="{% url 'wishlist_view' %}" class="nav-link cart-icon-container">
+                            <i class="bi bi-heart fs-5"></i> 
+                            <span class="cart-badge bg-danger border-danger text-white">{{ wishlist_count|default:"0" }}</span>
+                        </a>
+                    </li>
+
+                    <!-- Cart Icon with Count -->
+                    <li class="nav-item">
+                        <a href="{% url 'cart' %}" class="nav-link cart-icon-container">
+                            <i class="bi bi-cart3 fs-5 me-1"></i>
+                            <span class="cart-badge">{{ cart_count|default:"0" }}</span>
+                            <span class="ms-1 d-none d-xl-inline">{% trans "Cart" %}</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages (Toast Style) -->
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080; margin-top: 75px;">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="toast show align-items-center text-white bg-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% else %}primary{% endif %} border-0 shadow-lg mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body d-flex align-items-center gap-2">
+                            {% if message.tags == 'success' %}
+                                <i class="bi bi-check-circle-fill fs-5"></i>
+                            {% elif message.tags == 'error' %}
+                                <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                            {% else %}
+                                <i class="bi bi-info-circle-fill fs-5"></i>
+                            {% endif %}
+                            {{ message }}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="container-fluid p-0">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="fk-footer pt-5 mt-auto">
+        <div class="container-fluid px-0">
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <h6 class="footer-col-title">{% trans "About" %}</h6>
+                    <ul>
+                        <li><a href="{% url 'contact_us' %}">{% trans "Contact Us" %}</a></li>
+                        <li><a href="{% url 'about_us' %}">{% trans "About Us" %}</a></li>
+                        <li><a href="#">{% trans "Careers" %}</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h6 class="footer-col-title">{% trans "Help" %}</h6>
+                    <ul>
+                        <li><a href="{% url 'contact_us' %}">{% trans "Payments" %}</a></li>
+                        <li><a href="{% url 'contact_us' %}">{% trans "Shipping" %}</a></li>
+                        <li><a href="{% url 'contact_us' %}">{% trans "Cancellation & Returns" %}</a></li>
+                        <li><a href="#">{% trans "FAQ" %}</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h6 class="footer-col-title">{% trans "Policy" %}</h6>
+                    <ul>
+                        <li><a href="{% url 'terms_conditions' %}">{% trans "Return Policy" %}</a></li>
+                        <li><a href="{% url 'terms_conditions' %}">{% trans "Terms of Use" %}</a></li>
+                        <li><a href="{% url 'privacy_policy' %}">{% trans "Privacy Policy" %}</a></li>
+                        <li><a href="{% url 'terms_conditions' %}">{% trans "Security" %}</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4 border-start border-secondary ps-4">
+                    <h6 class="footer-col-title">{% trans "Contact Us:" %}</h6>
+                    <p class="mb-0 text-light" style="font-size: 13px;">
+                        <strong>{{ system_settings.store_name }} Support</strong><br>
+                        Email: {{ system_settings.contact_email }}<br>
+                        Phone: {{ system_settings.support_phone }}
+                    </p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="d-flex align-items-center mb-3 mb-md-0">
+                    <span class="minimart-logo me-2" style="width: 34px; height: 34px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%" style="vertical-align: middle;">
+                            <defs>
+                                <linearGradient id="brandGradFooter" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#FF5E3A" />
+                                    <stop offset="100%" stop-color="#FFB800" />
+                                </linearGradient>
+                            </defs>
+                            <rect x="8" y="8" width="84" height="84" rx="22" fill="url(#brandGradFooter)" />
+                            <path d="M 26 70 L 26 30 L 50 54 L 74 30 L 74 70" fill="none" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </span>
+                    <span class="minimart-brand-text me-4" style="font-size: 16px;">Mini<span class="brand-bold">Mart</span></span>
+                    <span>&copy; {% now "Y" %} {{ system_settings.store_name }}.com</span>
+                </div>
+                <div class="social-icons">
+                    <span class="me-2 text-white" style="font-size: 14px;">{% trans "Keep in touch:" %}</span>
+                    <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

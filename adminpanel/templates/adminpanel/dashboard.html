@@ -1,0 +1,265 @@
+﻿{% extends 'adminpanel/base.html' %}
+
+{% block title %}Dashboard - MiniMart Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="text-muted mb-0">MiniMart admin overview for sales, inventory, orders, categories, and users.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'adminpanel:add_product' %}" class="btn btn-warning"><i class="fas fa-plus me-2"></i>Add Product</a>
+        <a href="{% url 'adminpanel:order_list' %}" class="btn btn-primary"><i class="fas fa-shopping-cart me-2"></i>Orders</a>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="panel-card p-4 h-100 border-start border-5 border-primary">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p class="text-muted text-uppercase fw-bold small mb-1">Total Products</p>
+                    <h2 class="fw-bold mb-0">{{ total_products }}</h2>
+                </div>
+                <i class="fas fa-box fa-2x text-primary"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="panel-card p-4 h-100 border-start border-5 border-success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p class="text-muted text-uppercase fw-bold small mb-1">Total Orders</p>
+                    <h2 class="fw-bold mb-0">{{ total_orders }}</h2>
+                </div>
+                <i class="fas fa-shopping-cart fa-2x text-success"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="panel-card p-4 h-100 border-start border-5 border-warning">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p class="text-muted text-uppercase fw-bold small mb-1">Total Users</p>
+                    <h2 class="fw-bold mb-0">{{ total_users }}</h2>
+                </div>
+                <i class="fas fa-users fa-2x text-warning"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="panel-card p-4 h-100 border-start border-5 border-info">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p class="text-muted text-uppercase fw-bold small mb-1">7 Day Sales</p>
+                    <h2 class="fw-bold mb-0">₹{{ sales_total|floatformat:0 }}</h2>
+                </div>
+                <i class="fas fa-indian-rupee-sign fa-2x text-info"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="panel-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-chart-line text-primary me-2"></i>Sales Summary</h5>
+                <span class="badge bg-light text-dark border">Last 7 Days</span>
+            </div>
+            <div class="chart-box">
+                <canvas id="salesSummaryChart" aria-label="Sales Summary Chart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="panel-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-list-check text-success me-2"></i>Order Status</h5>
+                <span class="badge bg-light text-dark border">{{ total_orders }} Orders</span>
+            </div>
+            <div class="chart-box">
+                <canvas id="orderStatusChart" aria-label="Order Status Chart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="panel-card p-4 h-100">
+            <h5 class="fw-bold mb-3"><i class="fas fa-tags text-warning me-2"></i>Categories</h5>
+            {% for item in category_counts %}
+            <div class="mb-3">
+                <div class="d-flex justify-content-between small mb-1">
+                    <span>{{ item.category_name }}</span>
+                    <span>{{ item.p_count }} products</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar" style="width: {{ item.percentage|floatformat:0 }}%;"></div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted mb-0">No categories found.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-xl-6">
+        <div class="panel-card">
+            <div class="p-3 border-bottom d-flex align-items-center justify-content-between">
+                <h5 class="fw-bold mb-0"><i class="fas fa-box text-primary me-2"></i>Recent Products</h5>
+                <a href="{% url 'adminpanel:product_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table admin-table">
+                    <thead>
+                        <tr><th>ID</th><th>Name</th><th>Price</th><th>Stock</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for product in recent_products %}
+                        <tr>
+                            <td>{{ product.id }}</td>
+                            <td class="fw-semibold">{{ product.product_name }}</td>
+                            <td>₹{{ product.price }}</td>
+                            <td>
+                                {% if product.stock == 0 %}<span class="badge bg-danger">Out</span>{% elif product.stock < 10 %}<span class="badge bg-warning text-dark">Low: {{ product.stock }}</span>{% else %}<span class="badge bg-success">{{ product.stock }}</span>{% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted py-4">No products found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-6">
+        <div class="panel-card">
+            <div class="p-3 border-bottom d-flex align-items-center justify-content-between">
+                <h5 class="fw-bold mb-0"><i class="fas fa-shopping-cart text-success me-2"></i>Recent Orders</h5>
+                <a href="{% url 'adminpanel:order_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table admin-table">
+                    <thead>
+                        <tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr>
+                            <td class="fw-semibold">{{ order.order_number }}</td>
+                            <td>{{ order.first_name }} {{ order.last_name }}</td>
+                            <td>₹{{ order.order_total|floatformat:0 }}</td>
+                            <td><span class="badge bg-primary">{{ order.status }}</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted py-4">No orders found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .chart-box {
+        position: relative;
+        height: 300px;
+        min-height: 300px;
+    }
+</style>
+
+{{ sales_labels|json_script:"sales-labels-data" }}
+{{ sales_values|json_script:"sales-values-data" }}
+{{ status_labels|json_script:"status-labels-data" }}
+{{ status_values|json_script:"status-values-data" }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const salesLabels = JSON.parse(document.getElementById('sales-labels-data').textContent);
+        const salesValues = JSON.parse(document.getElementById('sales-values-data').textContent);
+        const statusLabels = JSON.parse(document.getElementById('status-labels-data').textContent);
+        const statusValues = JSON.parse(document.getElementById('status-values-data').textContent);
+
+        const chartTextColor = getComputedStyle(document.body).getPropertyValue('--mini-text').trim() || '#1f2937';
+        const chartBorderColor = getComputedStyle(document.body).getPropertyValue('--mini-border').trim() || '#dbe3ef';
+
+        const salesCanvas = document.getElementById('salesSummaryChart');
+        if (salesCanvas) {
+            new Chart(salesCanvas, {
+                type: 'line',
+                data: {
+                    labels: salesLabels,
+                    datasets: [{
+                        label: 'Sales Amount',
+                        data: salesValues,
+                        borderColor: '#2874f0',
+                        backgroundColor: 'rgba(40, 116, 240, 0.14)',
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#ff9f00',
+                        pointBorderColor: '#172337',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return '₹' + Number(context.parsed.y || 0).toFixed(2);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { ticks: { color: chartTextColor }, grid: { color: chartBorderColor } },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: chartTextColor,
+                                callback: function (value) { return '₹' + value; }
+                            },
+                            grid: { color: chartBorderColor }
+                        }
+                    }
+                }
+            });
+        }
+
+        const statusCanvas = document.getElementById('orderStatusChart');
+        if (statusCanvas) {
+            new Chart(statusCanvas, {
+                type: 'doughnut',
+                data: {
+                    labels: statusLabels,
+                    datasets: [{
+                        data: statusValues,
+                        backgroundColor: ['#2874f0', '#22a06b', '#ff9f00', '#dc3545', '#6f42c1', '#20c997'],
+                        borderColor: '#ffffff',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '62%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: chartTextColor, boxWidth: 12, padding: 14 }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
+

@@ -1,0 +1,339 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Invoice" %} - #{{ order.order_number }} - MiniMart{% endblock %}
+
+{% block content %}
+<style>
+    .invoice-container {
+        max-width: 800px;
+        margin: 40px auto;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        padding: 48px;
+        position: relative;
+        overflow: hidden;
+    }
+    .invoice-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, #2874f0, #1e5bbf, #6366f1);
+    }
+    .invoice-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 36px;
+        padding-bottom: 24px;
+        border-bottom: 2px solid #f1f5f9;
+    }
+    .invoice-logo h2 {
+        font-weight: 800;
+        color: #172337;
+        margin-bottom: 4px;
+        letter-spacing: -0.5px;
+    }
+    .invoice-logo p {
+        color: #64748b;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+    .invoice-badge {
+        background: linear-gradient(135deg, #2874f0, #6366f1);
+        color: #fff;
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+    .invoice-meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-bottom: 36px;
+    }
+    .invoice-meta-box {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 20px;
+        border: 1px solid #e2e8f0;
+    }
+    .invoice-meta-box h6 {
+        color: #2874f0;
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+    }
+    .invoice-meta-box p {
+        margin: 0;
+        color: #334155;
+        line-height: 1.6;
+    }
+    .invoice-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 24px;
+    }
+    .invoice-table thead th {
+        background: #172337;
+        color: #ffffff;
+        padding: 14px 16px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .invoice-table thead th:first-child {
+        border-radius: 8px 0 0 0;
+    }
+    .invoice-table thead th:last-child {
+        border-radius: 0 8px 0 0;
+    }
+    .invoice-table tbody td {
+        padding: 14px 16px;
+        border-bottom: 1px solid #f1f5f9;
+        color: #334155;
+        vertical-align: middle;
+    }
+    .invoice-table tbody tr:hover {
+        background-color: #f8fafc;
+    }
+    .invoice-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    .invoice-totals {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 12px;
+    }
+    .invoice-totals-box {
+        width: 280px;
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 20px;
+        border: 1px solid #e2e8f0;
+    }
+    .invoice-totals-box .total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        color: #475569;
+        font-size: 0.95rem;
+    }
+    .invoice-totals-box .total-row.grand-total {
+        border-top: 2px solid #2874f0;
+        margin-top: 8px;
+        padding-top: 12px;
+        color: #172337;
+        font-weight: 800;
+        font-size: 1.15rem;
+    }
+    .invoice-footer {
+        margin-top: 40px;
+        padding-top: 24px;
+        border-top: 2px solid #f1f5f9;
+        text-align: center;
+        color: #94a3b8;
+        font-size: 0.85rem;
+    }
+    .invoice-status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-completed { background: #d1fae5; color: #065f46; }
+    .status-shipped { background: #dbeafe; color: #1e40af; }
+    .status-delivered { background: #d1fae5; color: #065f46; }
+    .status-cancelled { background: #fee2e2; color: #991b1b; }
+    .status-return_requested { background: #fef3c7; color: #92400e; }
+    .status-returned { background: #f3e8ff; color: #6b21a8; }
+
+    .btn-print {
+        background: linear-gradient(135deg, #2874f0, #1e5bbf);
+        color: #fff;
+        border: none;
+        padding: 10px 28px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-print:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(40, 116, 240, 0.3);
+        color: #fff;
+    }
+    .btn-download {
+        background: #172337;
+        color: #fff;
+        border: none;
+        padding: 10px 28px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-download:hover {
+        background: #1e3a5f;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(23, 35, 55, 0.3);
+        color: #fff;
+    }
+    .invoice-actions {
+        text-align: center;
+        margin-top: 24px;
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    /* Print styles */
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        .invoice-container, .invoice-container * {
+            visibility: visible;
+        }
+        .invoice-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            margin: 0;
+            padding: 30px;
+            box-shadow: none;
+            border-radius: 0;
+            max-width: 100%;
+            width: 100%;
+        }
+        .invoice-container::before {
+            display: none;
+        }
+        .invoice-actions,
+        .no-print {
+            display: none !important;
+        }
+        .invoice-table thead th {
+            background: #172337 !important;
+            color: #ffffff !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+</style>
+
+<div class="invoice-container" id="invoice-content">
+    <!-- Header -->
+    <div class="invoice-header">
+        <div class="invoice-logo">
+            <h2>🛒 MiniMart</h2>
+            <p>{% trans "Your Trusted Online Store" %}</p>
+        </div>
+        <div class="invoice-badge">{% trans "Invoice" %}</div>
+    </div>
+
+    <!-- Meta Information -->
+    <div class="invoice-meta">
+        <div class="invoice-meta-box">
+            <h6><i class="bi bi-receipt me-1"></i>{% trans "Order Details" %}</h6>
+            <p>
+                <strong>{% trans "Invoice No:" %}</strong> INV-{{ order.order_number }}<br>
+                <strong>{% trans "Order No:" %}</strong> #{{ order.order_number }}<br>
+                <strong>{% trans "Date:" %}</strong> {{ order.created_at|date:"d M, Y" }}<br>
+                <strong>{% trans "Status:" %}</strong>
+                <span class="invoice-status-badge status-{{ order.status|lower }}">
+                    {{ order.get_status_display }}
+                </span>
+            </p>
+        </div>
+        <div class="invoice-meta-box">
+            <h6><i class="bi bi-geo-alt me-1"></i>{% trans "Shipping Address" %}</h6>
+            <p>
+                <strong>{{ order.first_name }} {{ order.last_name }}</strong><br>
+                {{ order.address }}<br>
+                {{ order.city }}, {{ order.state }}<br>
+                {{ order.country }}<br>
+                <i class="bi bi-telephone me-1"></i>{{ order.phone }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Items Table -->
+    <table class="invoice-table">
+        <thead>
+            <tr>
+                <th style="width: 10%;">#</th>
+                <th style="width: 45%;">{% trans "Product" %}</th>
+                <th style="width: 15%; text-align: center;">{% trans "Qty" %}</th>
+                <th style="width: 15%; text-align: right;">{% trans "Unit Price" %}</th>
+                <th style="width: 15%; text-align: right;">{% trans "Total" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order_items %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>
+                    <strong>{{ item.product.translated_name }}</strong>
+                    {% if item.product.brand %}
+                    <br><small class="text-muted">{{ item.product.brand.translated_name }}</small>
+                    {% endif %}
+                </td>
+                <td style="text-align: center;">{{ item.quantity }}</td>
+                <td style="text-align: right;">₹{{ item.product_price|floatformat:0 }}</td>
+                <td style="text-align: right;">₹{{ item.line_total|floatformat:0 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Totals -->
+    <div class="invoice-totals">
+        <div class="invoice-totals-box">
+            <div class="total-row">
+                <span>{% trans "Subtotal" %}</span>
+                <span>₹{{ subtotal|floatformat:0 }}</span>
+            </div>
+            <div class="total-row grand-total">
+                <span>{% trans "Grand Total" %}</span>
+                <span>₹{{ order.order_total|floatformat:0 }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="invoice-footer">
+        <p>{% trans "Thank you for shopping with MiniMart!" %}</p>
+        <p>{% trans "If you have any questions about this invoice, please contact our support team." %}</p>
+    </div>
+
+    <!-- Actions (hidden on print) -->
+    <div class="invoice-actions no-print">
+        <button class="btn-print" onclick="window.print()">
+            <i class="bi bi-printer"></i> {% trans "Print Invoice" %}
+        </button>
+        <a href="{% url 'order_history' %}" class="btn-download">
+            <i class="bi bi-arrow-left"></i> {% trans "Back to Orders" %}
+        </a>
+    </div>
+</div>
+{% endblock %}

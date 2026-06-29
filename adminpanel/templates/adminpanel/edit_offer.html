@@ -1,0 +1,28 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}Edit Offer - MiniMart Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Edit Offer</h1>
+        <p class="text-muted mb-0">Update details for {{ offer.title }}.</p>
+    </div>
+    <a href="{% url 'adminpanel:offer_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Offers
+    </a>
+</div>
+
+<div class="panel-card form-card p-4">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-save me-2"></i>Update Offer
+            </button>
+            <a href="{% url 'adminpanel:offer_list' %}" class="btn btn-outline-danger px-4">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends 'accounts/base_account.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Account Settings" %} - MiniMart{% endblock %}
+
+{% block account_content %}
+<div class="border-bottom pb-3 mb-4">
+    <h2 class="fw-bold mb-1">{% trans "Account Settings" %}</h2>
+    <p class="text-muted mb-0">{% trans "Manage your profile, security, payments, and preferences from one place." %}</p>
+</div>
+
+<div class="row g-4">
+    <!-- Card 1: Profile Information -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border border-light-subtle shadow-sm transition-hover">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary-subtle text-primary p-3 rounded-3 me-3">
+                        <i class="bi bi-person-gear fs-3"></i>
+                    </div>
+                    <h5 class="card-title fw-bold mb-0">{% trans "Profile Info" %}</h5>
+                </div>
+                <p class="card-text text-muted flex-grow-1">{% trans "Update your personal details, email, name, and profile picture." %}</p>
+                <a href="{% url 'profile_settings' %}" class="btn btn-outline-primary btn-sm mt-3 w-100 rounded-pill">{% trans "Edit Profile" %}</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2: Saved Addresses -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border border-light-subtle shadow-sm transition-hover">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-success-subtle text-success p-3 rounded-3 me-3">
+                        <i class="bi bi-geo-alt fs-3"></i>
+                    </div>
+                    <h5 class="card-title fw-bold mb-0">{% trans "Saved Addresses" %}</h5>
+                </div>
+                <p class="card-text text-muted flex-grow-1">{% trans "Manage shipping addresses for fast and reliable order delivery." %}</p>
+                <a href="{% url 'address_book' %}" class="btn btn-outline-success btn-sm mt-3 w-100 rounded-pill">{% trans "Manage Addresses" %}</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 3: Payment Options -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border border-light-subtle shadow-sm transition-hover">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-info-subtle text-info p-3 rounded-3 me-3">
+                        <i class="bi bi-credit-card fs-3"></i>
+                    </div>
+                    <h5 class="card-title fw-bold mb-0">{% trans "Payment Options" %}</h5>
+                </div>
+                <p class="card-text text-muted flex-grow-1">{% trans "Edit or add saved credit/debit cards, UPI IDs, or wallets." %}</p>
+                <a href="{% url 'payment_methods' %}" class="btn btn-outline-info btn-sm mt-3 w-100 rounded-pill">{% trans "Manage Payments" %}</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 4: Change Password -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border border-light-subtle shadow-sm transition-hover">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-danger-subtle text-danger p-3 rounded-3 me-3">
+                        <i class="bi bi-shield-lock fs-3"></i>
+                    </div>
+                    <h5 class="card-title fw-bold mb-0">{% trans "Security" %}</h5>
+                </div>
+                <p class="card-text text-muted flex-grow-1">{% trans "Change your account password and update credentials regularly." %}</p>
+                <a href="{% url 'change_password' %}" class="btn btn-outline-danger btn-sm mt-3 w-100 rounded-pill">{% trans "Change Password" %}</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 5: Notifications -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border border-light-subtle shadow-sm transition-hover">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-warning-subtle text-warning p-3 rounded-3 me-3">
+                        <i class="bi bi-bell fs-3"></i>
+                    </div>
+                    <h5 class="card-title fw-bold mb-0">{% trans "Notifications" %}</h5>
+                </div>
+                <p class="card-text text-muted flex-grow-1">{% trans "Control SMS/Email updates for orders, wishlist, and offers." %}</p>
+                <a href="{% url 'notification_preferences' %}" class="btn btn-outline-warning btn-sm mt-3 w-100 rounded-pill">{% trans "Edit Preferences" %}</a>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<style>
+    .transition-hover {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .transition-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08) !important;
+        border-color: #cbd5e1 !important;
+    }
+</style>
+{% endblock %}

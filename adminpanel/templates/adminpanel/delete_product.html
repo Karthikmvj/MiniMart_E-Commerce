@@ -1,0 +1,28 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}Delete Product - MiniMart Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Delete Product</h1>
+        <p class="text-muted mb-0">Confirm removal from the MiniMart catalog.</p>
+    </div>
+    <a href="{% url 'adminpanel:product_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Products
+    </a>
+</div>
+
+<div class="panel-card p-4">
+    <div class="alert alert-danger mb-4">
+        Are you sure you want to delete <strong>{{ product.product_name }}</strong>?
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger px-4">
+            <i class="fas fa-trash me-2"></i>Yes, Delete
+        </button>
+        <a href="{% url 'adminpanel:product_list' %}" class="btn btn-outline-secondary px-4 ms-2">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}Stock Management - MiniMart Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Stock Management</h1>
+        <p class="text-muted mb-0">Monitor low-stock and out-of-stock products.</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="panel-card p-4 border-start border-5 border-warning">
+            <p class="text-muted text-uppercase fw-bold small mb-1">Low Stock</p>
+            <h2 class="fw-bold mb-0">{{ low_stock_count }}</h2>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel-card p-4 border-start border-5 border-danger">
+            <p class="text-muted text-uppercase fw-bold small mb-1">Out of Stock</p>
+            <h2 class="fw-bold mb-0">{{ out_of_stock_count }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="panel-card">
+    <div class="table-responsive">
+        <table class="table admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Product Name</th>
+                    <th>Current Stock</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.id }}</td>
+                    <td class="fw-semibold">{{ product.product_name }}</td>
+                    <td>{{ product.stock }}</td>
+                    <td>
+                        {% if product.stock == 0 %}
+                            <span class="badge bg-danger">Out of Stock</span>
+                        {% elif product.stock < 10 %}
+                            <span class="badge bg-warning text-dark">Low Stock</span>
+                        {% else %}
+                            <span class="badge bg-success">In Stock</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <a href="{% url 'adminpanel:update_stock' product.id %}" class="btn btn-sm btn-primary">Update</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-5">No products available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

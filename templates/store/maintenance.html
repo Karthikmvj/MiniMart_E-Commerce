@@ -1,0 +1,83 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans "Under Maintenance" %} - MiniMart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .maintenance-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            max-width: 550px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        .gear-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 2rem;
+        }
+        .gear-svg {
+            animation: spin 10s linear infinite;
+        }
+        .gear-svg-small {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            animation: spin-reverse 6s linear infinite;
+        }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes spin-reverse {
+            100% { transform: rotate(-360deg); }
+        }
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ff9f00, #ff5e3a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="maintenance-card mx-3">
+        <div class="gear-container">
+            <!-- Large Gear -->
+            <svg class="gear-svg" width="80" height="80" viewBox="0 0 100 100" fill="#ff9f00">
+                <path d="M50 35c-8.3 0-15 6.7-15 15s6.7 15 15 15 15-6.7 15-15-6.7-15-15-15zm0 22c-3.9 0-7-3.1-7-7s3.1-7 7-7 7 3.1 7 7-3.1 7-7 7zm35-7c0-2-.3-4-.9-5.9l8.6-6.7c1.1-.9 1.4-2.5.7-3.8l-8-13.9c-.7-1.2-2.2-1.8-3.5-1.3l-10.1 4.1c-3-2.3-6.4-4.2-10.1-5.5L49.2 1.3C49 0.6 48.3 0 47.5 0h-16c-.8 0-1.5.6-1.7 1.3L28 12c-3.7 1.3-7.1 3.2-10.1 5.5L7.8 13.4c-1.3-.5-2.8.1-3.5 1.3l-8 13.9c-.7 1.3-.4 2.9.7 3.8l8.6 6.7c-.6 1.9-.9 3.9-.9 5.9s.3 4 .9 5.9l-8.6 6.7c-1.1.9-1.4 2.5-.7 3.8l8 13.9c.7 1.2 2.2 1.8 3.5 1.3l10.1-4.1c3 2.3 6.4 4.2 10.1 5.5l1.8 10.7c.2.7.9 1.3 1.7 1.3h16c.8 0 1.5-.6 1.7-1.3l1.8-10.7c3.7-1.3 7.1-3.2 10.1-5.5l10.1 4.1c1.3.5 2.8-.1 3.5-1.3l8-13.9c.7-1.3.4-2.9-.7-3.8l-8.6-6.7c.6-1.9.9-3.9.9-5.9z"/>
+            </svg>
+            <!-- Small Gear -->
+            <svg class="gear-svg-small" width="45" height="45" viewBox="0 0 100 100" fill="#ff5e3a">
+                <path d="M50 35c-8.3 0-15 6.7-15 15s6.7 15 15 15 15-6.7 15-15-6.7-15-15-15zm0 22c-3.9 0-7-3.1-7-7s3.1-7 7-7 7 3.1 7 7-3.1 7-7 7zm35-7c0-2-.3-4-.9-5.9l8.6-6.7c1.1-.9 1.4-2.5.7-3.8l-8-13.9c-.7-1.2-2.2-1.8-3.5-1.3l-10.1 4.1c-3-2.3-6.4-4.2-10.1-5.5L49.2 1.3C49 0.6 48.3 0 47.5 0h-16c-.8 0-1.5.6-1.7 1.3L28 12c-3.7 1.3-7.1 3.2-10.1 5.5L7.8 13.4c-1.3-.5-2.8.1-3.5 1.3l-8 13.9c-.7 1.3-.4 2.9.7 3.8l8.6 6.7c-.6 1.9-.9 3.9-.9 5.9s.3 4 .9 5.9l-8.6 6.7c-1.1.9-1.4 2.5-.7 3.8l8 13.9c.7 1.2 2.2 1.8 3.5 1.3l10.1-4.1c3 2.3 6.4 4.2 10.1 5.5l1.8 10.7c.2.7.9 1.3 1.7 1.3h16c.8 0 1.5-.6 1.7-1.3l1.8-10.7c3.7-1.3 7.1-3.2 10.1-5.5l10.1 4.1c1.3.5 2.8-.1 3.5-1.3l8-13.9c.7-1.3.4-2.9-.7-3.8l-8.6-6.7c.6-1.9.9-3.9.9-5.9z"/>
+            </svg>
+        </div>
+        <h1>{% trans "We'll Be Back Soon!" %}</h1>
+        <p>{% trans "Our site is currently undergoing scheduled maintenance to improve our services. Please check back in a little while." %}</p>
+        <p class="small text-muted mt-4">&copy; {% now "Y" %} {{ system_settings.store_name|default:"MiniMart" }}. {% trans "All rights reserved." %}</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block content %}
+<div class="card border-danger shadow-sm">
+    <div class="card-header bg-danger text-white">
+        <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Delete Category</h4>
+    </div>
+    <div class="card-body">
+        <p class="lead">Are you sure you want to delete the category "<strong>{{ category.category_name }}</strong>"?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            <a href="{% url 'adminpanel:category_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

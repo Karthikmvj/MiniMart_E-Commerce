@@ -1,0 +1,50 @@
+{% extends 'accounts/base_account.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Address Book" %} - MiniMart{% endblock %}
+
+{% block account_content %}
+<div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+    <h2 class="fw-bold mb-0">{% trans "Address Book" %}</h2>
+    <a href="{% url 'add_address' %}" class="btn btn-primary btn-sm rounded-pill px-3">
+        <i class="bi bi-plus-circle me-1"></i> {% trans "Add New Address" %}
+    </a>
+</div>
+
+{% if addresses %}
+<div class="row g-4">
+    {% for address in addresses %}
+    <div class="col-md-6">
+        <div class="card h-100 {% if address.is_default %}border-primary shadow{% else %}shadow-sm{% endif %}">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <h5 class="card-title fw-bold">{{ address.get_address_type_display }}</h5>
+                    {% if address.is_default %}
+                        <span class="badge bg-primary">{% trans "Default" %}</span>
+                    {% endif %}
+                </div>
+                <address class="mb-3 text-muted" style="font-style: normal;">
+                    <strong>{{ address.full_name }}</strong><br>
+                    {{ address.address_line_1 }}<br>
+                    {% if address.address_line_2 %}{{ address.address_line_2 }}<br>{% endif %}
+                    {{ address.city }}, {{ address.state }} {{ address.postal_code }}<br>
+                    {{ address.country }}<br>
+                    <strong>{% trans "Phone:" %}</strong> {{ address.phone_number }}
+                </address>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'edit_address' address.id %}" class="btn btn-sm btn-outline-secondary">{% trans "Edit" %}</a>
+                    <a href="{% url 'delete_address' address.id %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center text-muted p-5 border rounded-3">
+    <i class="bi bi-geo-alt fs-1"></i>
+    <p class="mt-3">{% trans "You haven't saved any addresses yet." %}</p>
+    <a href="{% url 'add_address' %}" class="btn btn-primary">{% trans "Add Your First Address" %}</a>
+</div>
+{% endif %}
+{% endblock %}

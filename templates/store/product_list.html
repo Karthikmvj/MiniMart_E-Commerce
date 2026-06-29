@@ -1,0 +1,365 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load i18n_helper %}
+
+{% block title %}{% trans "Shop" %} - MiniMart{% endblock %}
+
+{% block content %}
+<style>
+    /* Sidebar */
+    .fk-sidebar {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid var(--mini-border);
+        box-shadow: 0 4px 16px rgba(15,23,42,.05);
+        position: sticky;
+        top: 80px;
+    }
+    .sidebar-section-title {
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: #94a3b8;
+        margin-bottom: 10px;
+    }
+    .filter-options {
+        max-height: 160px;
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+    .filter-options::-webkit-scrollbar { width: 3px; }
+    .filter-options::-webkit-scrollbar-thumb { background: var(--mini-border); border-radius: 4px; }
+    .filter-options .form-check { padding: 3px 0; }
+    .filter-options .form-check-label {
+        font-size: 13px;
+        color: #475569;
+        cursor: pointer;
+        transition: color .12s;
+        user-select: none;
+    }
+    .filter-options .form-check-label:hover { color: var(--mini-blue); }
+    .filter-options .form-check-input:checked + label { color: var(--mini-blue); font-weight: 700; }
+    .filter-options .form-check-input:checked { background-color: var(--mini-blue); border-color: var(--mini-blue); }
+    .filter-options .form-check-input { cursor: pointer; }
+    /* Filter loading state */
+    .fk-sidebar.is-loading { opacity: .55; pointer-events: none; }
+    .fk-sidebar.is-loading::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 12px;
+        background: rgba(255,255,255,.5);
+    }
+    .fk-sidebar .form-select,
+    .fk-sidebar .form-control { font-size: 13px; border-color: var(--mini-border); border-radius: 8px; padding: 7px 10px; }
+
+    /* Product Cards */
+    .fk-product-card {
+        border-radius: 12px;
+        border: 1px solid var(--mini-border) !important;
+        overflow: hidden;
+        transition: box-shadow .25s ease, transform .25s ease;
+        background: #fff;
+    }
+    .fk-product-card:hover {
+        box-shadow: 0 12px 32px rgba(15,23,42,.1) !important;
+        transform: translateY(-4px);
+    }
+    .fk-product-img-wrap {
+        height: 170px;
+        overflow: hidden;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px;
+    }
+    .fk-product-img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+        transition: transform .3s ease;
+    }
+    .fk-product-card:hover .fk-product-img { transform: scale(1.06); }
+    .fk-product-card .card-body { padding: 12px 14px 14px; }
+
+    .prod-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--mini-text-dark);
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        line-height: 1.4;
+        min-height: 2.8em;
+        text-decoration: none;
+    }
+    .prod-title:hover { color: var(--mini-blue); }
+
+    .prod-price { font-size: 15px; font-weight: 800; color: var(--mini-text-dark); }
+    .prod-original { font-size: 12px; color: #94a3b8; text-decoration: line-through; }
+    .prod-discount { font-size: 11px; font-weight: 700; background: #dcfce7; color: #15803d; border-radius: 10px; padding: 2px 7px; }
+
+    .fk-wishlist-btn {
+        background: rgba(255,255,255,.9);
+        backdrop-filter: blur(4px);
+        border-radius: 50%;
+        width: 32px; height: 32px;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,.08);
+        color: #cbd5e1;
+        transition: all .18s ease;
+        z-index: 2;
+        text-decoration: none;
+        border: none;
+    }
+    .fk-wishlist-btn:hover { background: #fff; color: var(--mini-red); transform: scale(1.12); }
+    .fk-wishlist-btn.active { color: var(--mini-red); }
+
+    /* Pagination */
+    .page-link {
+        font-size: 13px;
+        border-radius: 7px !important;
+        margin: 0 2px;
+        border: 1px solid var(--mini-border);
+        color: var(--mini-text-dark);
+        padding: 6px 12px;
+    }
+    .page-item.active .page-link { background: var(--mini-blue); border-color: var(--mini-blue); }
+    .page-item.disabled .page-link { color: #cbd5e1; }
+
+    /* Results bar */
+    .results-bar {
+        background: #fff;
+        border-radius: 10px;
+        border: 1px solid var(--mini-border);
+        padding: 10px 16px;
+        margin-bottom: 14px;
+    }
+</style>
+
+<div class="row g-0 mt-0">
+
+    <!-- Sidebar Filters -->
+    <div class="col-lg-3 col-md-4 px-3 px-md-2 py-3">
+        <div class="fk-sidebar">
+            <div class="px-4 py-3 border-bottom">
+                <h5 class="mb-0 fw-bold" style="font-size:15px;">{% trans "Filters" %}</h5>
+            </div>
+            <div class="p-4">
+                <form method="get" action="{% url 'product_list' %}" id="fkFilterForm">
+                    {% if keyword %}
+                        <input type="hidden" name="keyword" value="{{ keyword }}">
+                    {% endif %}
+
+                    <!-- Category -->
+                    <div class="mb-4">
+                        <p class="sidebar-section-title">{% trans "Categories" %}</p>
+                        <div class="filter-options">
+                            {% for checkbox in form.category %}
+                            <div class="form-check mb-1">
+                                {{ checkbox.tag }}
+                                <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label|translate }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <hr class="my-3" style="border-color: var(--mini-border);">
+
+                    <!-- Brand -->
+                    <div class="mb-4">
+                        <p class="sidebar-section-title">{% trans "Brands" %}</p>
+                        <div class="filter-options">
+                            {% for checkbox in form.brand %}
+                            <div class="form-check mb-1">
+                                {{ checkbox.tag }}
+                                <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label|translate }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <hr class="my-3" style="border-color: var(--mini-border);">
+
+                    <!-- Rating -->
+                    <div class="mb-4">
+                        <p class="sidebar-section-title">{% trans "Min. Rating" %}</p>
+                        {{ form.rating }}
+                    </div>
+
+                    <!-- Price Range -->
+                    <div class="mb-4">
+                        <p class="sidebar-section-title">{% trans "Price Range" %}</p>
+                        <div class="d-flex align-items-center gap-2">
+                            {{ form.min_price }}
+                            <span class="text-muted" style="font-size:12px;">{% trans "to" %}</span>
+                            {{ form.max_price }}
+                        </div>
+                    </div>
+
+                    <!-- Sort -->
+                    <div class="mb-4">
+                        <p class="sidebar-section-title">{% trans "Sort By" %}</p>
+                        {{ form.sort }}
+                    </div>
+
+                    <button type="submit" class="btn fk-btn-buy w-100 fw-bold mb-2" style="font-size:13px;">{% trans "Apply Filters" %}</button>
+                    <a href="{% url 'product_list' %}" class="btn btn-light border w-100 fw-semibold" style="font-size:13px; color:#475569;">{% trans "Clear All" %}</a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="col-lg-9 col-md-8 px-3 px-md-2 py-3">
+
+        <!-- Results Bar -->
+        <div class="results-bar d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold mb-0" style="font-size:15px;">
+                {% trans "Shop" %}
+                {% if product_count %}
+                <span class="text-muted fw-normal" style="font-size:13px;">&nbsp;({{ product_count }} {% trans "items" %})</span>
+                {% endif %}
+            </h4>
+            {% if keyword %}
+            <span class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle" style="font-size:12px; font-weight:600; padding:5px 12px; border-radius:20px;">
+                <i class="bi bi-search me-1"></i>{{ keyword }}
+            </span>
+            {% endif %}
+        </div>
+
+        <div class="row g-3">
+            {% for product in products %}
+            <div class="col-lg-4 col-md-6 col-sm-6 col-6">
+                <div class="fk-product-card position-relative h-100">
+
+                    <!-- Wishlist Button -->
+                    {% if product.id in wishlist_product_ids %}
+                    <a href="{% url 'remove_wishlist' product.id %}" class="fk-wishlist-btn active position-absolute top-0 end-0 m-2" title="{% trans 'Remove from Wishlist' %}">
+                        <i class="bi bi-heart-fill" style="font-size:14px;"></i>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'add_wishlist' product.id %}" class="fk-wishlist-btn position-absolute top-0 end-0 m-2" title="{% trans 'Add to Wishlist' %}">
+                        <i class="bi bi-heart" style="font-size:14px;"></i>
+                    </a>
+                    {% endif %}
+
+                    <!-- Image -->
+                    <a href="{{ product.get_url }}" class="text-decoration-none d-block">
+                        <div class="fk-product-img-wrap">
+                            <img src="{% if product.images %}{{ product.images.url }}{% else %}https://placehold.co/400x400?text=No+Image{% endif %}"
+                                 class="fk-product-img" alt="{{ product.translated_name }}">
+                        </div>
+                    </a>
+
+                    <div class="card-body">
+                        <!-- Title -->
+                        <a href="{{ product.get_url }}" class="prod-title d-block mb-2">{{ product.translated_name }}</a>
+
+                        <!-- Rating & Brand -->
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="badge bg-success rounded-1 px-2" style="font-size:10px; font-weight:700;">
+                                {{ product.avg_rating|default:"4.5"|floatformat:1 }} <i class="bi bi-star-fill" style="font-size:9px;"></i>
+                            </span>
+                            {% if product.brand %}
+                            <span class="badge bg-light text-muted border" style="font-size:10px;">{{ product.brand.translated_name }}</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Price -->
+                        <div class="mb-3">
+                            {% if product.original_price and product.original_price > product.price %}
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <span class="prod-price">₹{{ product.price|floatformat:0 }}</span>
+                                <span class="prod-discount">{{ product.discount_percentage }}% {% trans "OFF" %}</span>
+                            </div>
+                            <span class="prod-original">{% trans "MRP" %} ₹{{ product.original_price|floatformat:0 }}</span>
+                            {% else %}
+                            <span class="prod-price">₹{{ product.price|floatformat:0 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-flex gap-2 mt-auto">
+                            <a href="{% url 'add_cart' product.id %}" class="btn fk-btn-cart flex-fill fw-bold shadow-sm" style="font-size:12px; padding:8px 6px;">
+                                <i class="bi bi-cart-plus me-1"></i>{% trans "Cart" %}
+                            </a>
+                            <a href="{{ product.get_url }}" class="btn fk-btn-buy flex-fill fw-bold shadow-sm" style="font-size:12px; padding:8px 6px;">
+                                <i class="bi bi-eye me-1"></i>{% trans "View" %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="text-center py-5 bg-white rounded-3 border" style="border-color:var(--mini-border)!important;">
+                    <i class="bi bi-search d-block mb-3" style="font-size:3rem; color:#e2e8f0;"></i>
+                    <h5 class="fw-bold mb-1">{% trans "No results found" %}</h5>
+                    <p class="text-muted mb-4" style="font-size:13px;">{% trans "Try a different search term or adjust your filters" %}</p>
+                    <a href="{% url 'product_list' %}" class="btn btn-primary px-4 shadow-sm" style="font-size:13px;">{% trans "Browse All Products" %}</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if products.has_other_pages %}
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                {% if products.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.previous_page_number }}{% if query_string %}&{{ query_string }}{% endif %}">&laquo;</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                {% endif %}
+
+                {% for i in products.paginator.page_range %}
+                <li class="page-item {% if products.number == i %}active{% endif %}">
+                    <a class="page-link" href="?page={{ i }}{% if query_string %}&{{ query_string }}{% endif %}">{{ i }}</a>
+                </li>
+                {% endfor %}
+
+                {% if products.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.next_page_number }}{% if query_string %}&{{ query_string }}{% endif %}">&raquo;</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+    </div>
+</div>
+
+<script>
+(function () {
+    var form = document.getElementById('fkFilterForm');
+    if (!form) return;
+
+    var sidebar = form.closest('.fk-sidebar');
+
+    function submitFilter() {
+        if (sidebar) sidebar.classList.add('is-loading');
+        form.submit();
+    }
+
+    // Auto-submit when any category or brand checkbox is toggled
+    form.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+        cb.addEventListener('change', submitFilter);
+    });
+
+    // Auto-submit when Sort By dropdown changes
+    var sortSelect = form.querySelector('select[name="sort"]');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', submitFilter);
+    }
+})();
+</script>
+{% endblock %}

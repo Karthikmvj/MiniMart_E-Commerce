@@ -1,0 +1,546 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Checkout" %} - MiniMart{% endblock %}
+
+{% block content %}
+<style>
+    /* Wizard Steps styling */
+    .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        margin-bottom: 3rem;
+    }
+    .step-indicator::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background-color: var(--mini-border);
+        transform: translateY(-50%);
+        z-index: 1;
+    }
+    .step-progress-bar {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        height: 4px;
+        background-color: var(--mini-blue);
+        transform: translateY(-50%);
+        z-index: 1;
+        transition: width 0.3s ease;
+        width: 0%;
+    }
+    .step-node {
+        position: relative;
+        z-index: 2;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background-color: #fff;
+        border: 4px solid var(--mini-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: var(--mini-text);
+        transition: all 0.3s ease;
+    }
+    .step-node.active {
+        border-color: var(--mini-blue);
+        background-color: var(--mini-blue);
+        color: #fff;
+        box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.2);
+    }
+    .step-node.completed {
+        border-color: var(--mini-blue);
+        background-color: #fff;
+        color: var(--mini-blue);
+    }
+    .step-label {
+        position: absolute;
+        top: 55px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        width: 120px;
+        text-align: center;
+        color: var(--mini-text);
+    }
+    .step-node.active .step-label {
+        color: var(--mini-text-dark);
+        font-weight: 700;
+    }
+    .step-node.completed .step-label {
+        color: var(--mini-blue);
+    }
+    
+    .wizard-step {
+        display: none;
+    }
+    .wizard-step.active {
+        display: block;
+        animation: fadeIn 0.4s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="my-3">
+    <h2 class="mb-4 text-center fw-bold text-dark">{% trans "Checkout Process" %}</h2>
+    
+    <!-- Step Indicator Progress Bar -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-8 col-md-10">
+            <div class="step-indicator">
+                <div class="step-progress-bar" id="stepProgressBar"></div>
+                <div class="step-node active" id="node-1">
+                    1
+                    <div class="step-label">{% trans "Billing Address" %}</div>
+                </div>
+                <div class="step-node" id="node-2">
+                    2
+                    <div class="step-label">{% trans "Payment Method" %}</div>
+                </div>
+                <div class="step-node" id="node-3">
+                    3
+                    <div class="step-label">{% trans "Order Summary" %}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <form action="{% url 'place_order' %}" method="POST" id="checkoutWizardForm" class="needs-validation" novalidate>
+        {% csrf_token %}
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                
+                <!-- STEP 1: BILLING ADDRESS -->
+                <div class="card shadow-sm border-0 wizard-step active" id="step-1">
+                    <div class="card-header bg-primary text-white py-3 rounded-top">
+                        <h4 class="mb-0 fw-bold">{% trans "1. Billing Address" %}</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="first_name" class="form-label fw-semibold">{% trans "First Name" %}</label>
+                                <input type="text" class="form-control" name="first_name" id="first_name" required>
+                                <div class="invalid-feedback">{% trans "First name is required." %}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="last_name" class="form-label fw-semibold">{% trans "Last Name" %}</label>
+                                <input type="text" class="form-control" name="last_name" id="last_name" required>
+                                <div class="invalid-feedback">{% trans "Last name is required." %}</div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="email" class="form-label fw-semibold">{% trans "Email" %}</label>
+                                <input type="email" class="form-control" name="email" id="email" required>
+                                <div class="invalid-feedback">{% trans "A valid email is required." %}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label fw-semibold">{% trans "Phone" %}</label>
+                                <input type="text" class="form-control" name="phone" id="phone" required>
+                                <div class="invalid-feedback">{% trans "Phone number is required." %}</div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label fw-semibold">{% trans "Address" %}</label>
+                            <input type="text" class="form-control" name="address" id="address" required>
+                            <div class="invalid-feedback">{% trans "Billing address is required." %}</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="city" class="form-label fw-semibold">{% trans "City" %}</label>
+                                <input type="text" class="form-control" name="city" id="city" required>
+                                <div class="invalid-feedback">{% trans "City is required." %}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="state" class="form-label fw-semibold">{% trans "State" %}</label>
+                                <input class="form-control" list="stateOptions" name="state" id="state" placeholder="Type to search state..." required>
+                                <datalist id="stateOptions">
+                                    <option value="Andhra Pradesh">
+                                    <option value="Arunachal Pradesh">
+                                    <option value="Assam">
+                                    <option value="Bihar">
+                                    <option value="Chhattisgarh">
+                                    <option value="Goa">
+                                    <option value="Gujarat">
+                                    <option value="Haryana">
+                                    <option value="Himachal Pradesh">
+                                    <option value="Jharkhand">
+                                    <option value="Karnataka">
+                                    <option value="Kerala">
+                                    <option value="Madhya Pradesh">
+                                    <option value="Maharashtra">
+                                    <option value="Manipur">
+                                    <option value="Meghalaya">
+                                    <option value="Mizoram">
+                                    <option value="Nagaland">
+                                    <option value="Odisha">
+                                    <option value="Punjab">
+                                    <option value="Rajasthan">
+                                    <option value="Sikkim">
+                                    <option value="Tamil Nadu">
+                                    <option value="Telangana">
+                                    <option value="Tripura">
+                                    <option value="Uttar Pradesh">
+                                    <option value="Uttarakhand">
+                                    <option value="West Bengal">
+                                </datalist>
+                                <div class="invalid-feedback">{% trans "State is required." %}</div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="country" class="form-label fw-semibold">{% trans "Country" %}</label>
+                            <input class="form-control" list="countryOptions" name="country" id="country" placeholder="Type to search country..." required>
+                            <datalist id="countryOptions">
+                                <option value="India">
+                            </datalist>
+                            <div class="invalid-feedback">{% trans "Country is required." %}</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="button" class="btn btn-primary px-5 py-2 fw-bold" onclick="goToStep(2)">
+                                {% trans "Next: Payment Method" %} <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- STEP 2: PAYMENT METHOD -->
+                <div class="card shadow-sm border-0 wizard-step" id="step-2">
+                    <div class="card-header bg-primary text-white py-3 rounded-top">
+                        <h4 class="mb-0 fw-bold">{% trans "2. Payment Method" %}</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="text-muted mb-4">{% trans "Select your preferred payment method." %}</p>
+                        
+                        <div class="list-group mb-4">
+                            <!-- COD -->
+                            <label class="list-group-item list-group-item-action d-flex gap-3 p-3">
+                                <input name="payment_method" type="radio" class="form-check-input flex-shrink-0" value="COD" checked onclick="togglePaymentDetailFields('COD')">
+                                <span>
+                                    <strong class="d-block text-dark"><i class="bi bi-cash-coin me-2 text-success"></i>{% trans "Cash on Delivery" %}</strong>
+                                    <small class="text-muted">{% trans "Pay with cash upon delivery." %}</small>
+                                </span>
+                            </label>
+                            <!-- UPI -->
+                            <label class="list-group-item list-group-item-action d-flex gap-3 p-3">
+                                <input name="payment_method" type="radio" class="form-check-input flex-shrink-0" value="UPI" onclick="togglePaymentDetailFields('UPI')">
+                                <span>
+                                    <strong class="d-block text-dark"><i class="bi bi-qr-code-scan me-2 text-primary"></i>{% trans "UPI ID" %}</strong>
+                                    <small class="text-muted">{% trans "Pay using any standard UPI app." %}</small>
+                                </span>
+                            </label>
+                            <!-- GPay -->
+                            <label class="list-group-item list-group-item-action d-flex gap-3 p-3">
+                                <input name="payment_method" type="radio" class="form-check-input flex-shrink-0" value="GPay" onclick="togglePaymentDetailFields('GPay')">
+                                <span>
+                                    <strong class="d-block text-dark"><i class="bi bi-google me-2 text-danger"></i>{% trans "Google Pay (GPay)" %}</strong>
+                                    <small class="text-muted">{% trans "Pay instantly using your Google Pay account." %}</small>
+                                </span>
+                            </label>
+                            <!-- PhonePe -->
+                            <label class="list-group-item list-group-item-action d-flex gap-3 p-3">
+                                <input name="payment_method" type="radio" class="form-check-input flex-shrink-0" value="PhonePe" onclick="togglePaymentDetailFields('PhonePe')">
+                                <span>
+                                    <strong class="d-block text-dark"><i class="bi bi-wallet2 me-2 text-warning"></i>{% trans "PhonePe" %}</strong>
+                                    <small class="text-muted">{% trans "Pay securely using PhonePe Wallet / UPI." %}</small>
+                                </span>
+                            </label>
+                        </div>
+                        
+                        <!-- Dynamic payment detail inputs -->
+                        <div class="card bg-light border p-3 mb-4 rounded-3 d-none" id="paymentDetailsWrapper">
+                            <!-- UPI Input -->
+                            <div id="details-UPI" class="payment-detail-input-section d-none">
+                                <label for="upi_id_input" class="form-label fw-bold">{% trans "Enter UPI ID" %}</label>
+                                <input type="text" class="form-control" name="upi_id" id="upi_id_input" placeholder="username@bank">
+                                <div class="invalid-feedback">{% trans "A valid UPI ID is required." %}</div>
+                            </div>
+                            <!-- GPay Input -->
+                            <div id="details-GPay" class="payment-detail-input-section d-none">
+                                <label for="gpay_number_input" class="form-label fw-bold">{% trans "Enter Google Pay Mobile Number / UPI ID" %}</label>
+                                <input type="text" class="form-control" name="gpay_id" id="gpay_number_input" placeholder="9876543210 or username@okaxis">
+                                <div class="invalid-feedback">{% trans "A valid Google Pay reference is required." %}</div>
+                            </div>
+                            <!-- PhonePe Input -->
+                            <div id="details-PhonePe" class="payment-detail-input-section d-none">
+                                <label for="phonepe_number_input" class="form-label fw-bold">{% trans "Enter PhonePe Mobile Number / UPI ID" %}</label>
+                                <input type="text" class="form-control" name="phonepe_id" id="phonepe_number_input" placeholder="9876543210 or username@ybl">
+                                <div class="invalid-feedback">{% trans "A valid PhonePe reference is required." %}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-outline-secondary px-4 py-2" onclick="goToStep(1)">
+                                <i class="bi bi-arrow-left me-2"></i> {% trans "Back" %}
+                            </button>
+                            <button type="button" class="btn btn-primary px-5 py-2 fw-bold" onclick="goToStep(3)">
+                                {% trans "Next: Review Order" %} <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- STEP 3: ORDER SUMMARY & PLACE ORDER -->
+                <div class="card shadow-sm border-0 wizard-step" id="step-3">
+                    <div class="card-header bg-primary text-white py-3 rounded-top">
+                        <h4 class="mb-0 fw-bold">{% trans "3. Order Summary & Review" %}</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Review address & payment choices -->
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <div class="p-3 bg-light rounded-3 border h-100">
+                                    <h6 class="fw-bold mb-2 text-primary"><i class="bi bi-geo-alt me-1"></i>{% trans "Shipping Address" %}</h6>
+                                    <p class="mb-1 text-dark" id="summaryName"></p>
+                                    <p class="mb-1 text-muted text-wrap" id="summaryAddress"></p>
+                                    <p class="mb-0 text-muted" id="summaryPhone"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="p-3 bg-light rounded-3 border h-100">
+                                    <h6 class="fw-bold mb-2 text-primary"><i class="bi bi-credit-card me-1"></i>{% trans "Payment Selection" %}</h6>
+                                    <p class="mb-1 fw-semibold text-dark" id="summaryPaymentType"></p>
+                                    <p class="mb-0 text-muted small" id="summaryPaymentDetail"></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h5 class="fw-bold mb-3 text-dark">{% trans "Cart Items" %}</h5>
+                        <ul class="list-group list-group-flush mb-4 border rounded-3 p-0">
+                            {% for item in cart_items %}
+                            <li class="list-group-item d-flex justify-content-between align-items-start border-0 py-3 {% if not forloop.last %}border-bottom{% endif %}">
+                                <div>
+                                    <h6 class="my-0 text-truncate text-dark fw-bold" style="max-width: 320px;">{{ item.product.translated_name }}</h6>
+                                    <div class="text-muted small mt-1">
+                                        <span>{% trans "Quantity" %}: {{ item.quantity }}</span> &middot;
+                                        <span>{% trans "Price" %}: 
+                                            {% if item.product.original_price and item.product.original_price > item.product.price %}
+                                                <span class="text-decoration-line-through text-muted small">₹{{ item.original_price_val|floatformat:0 }}</span> 
+                                                <span class="fw-semibold text-success">₹{{ item.product.price|floatformat:0 }}</span>
+                                            {% else %}
+                                                <span class="fw-semibold text-dark">₹{{ item.product.price|floatformat:0 }}</span>
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    <div class="small mt-1">
+                                        <span class="text-muted">{% trans "Delivery" %}:</span>
+                                        {% if item.delivery_charge > 0 %}
+                                            <span class="text-warning fw-semibold">₹{{ item.delivery_charge|floatformat:0 }}</span>
+                                        {% else %}
+                                            <span class="text-success fw-semibold">{% trans "FREE" %}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="text-dark fw-bold d-block">₹{{ item.subtotal_with_delivery|floatformat:0 }}</span>
+                                    <small class="text-muted text-xs">{% trans "Incl. Delivery" %}</small>
+                                </div>
+                            </li>
+                            {% endfor %}
+                            
+                            <!-- Cost breakdown -->
+                            <li class="list-group-item border-top pt-3 pb-2 bg-light-subtle">
+                                <div class="d-flex justify-content-between text-muted mb-1">
+                                    <span>{% trans "Original Subtotal" %}</span>
+                                    <span>₹{{ original_total|floatformat:0 }}</span>
+                                </div>
+                                {% if discount > 0 %}
+                                <div class="d-flex justify-content-between text-success mb-1 fw-semibold">
+                                    <span>{% trans "Offer Discount" %}</span>
+                                    <span>-₹{{ discount|floatformat:0 }}</span>
+                                </div>
+                                {% endif %}
+                                <div class="d-flex justify-content-between text-muted mb-1">
+                                    <span>{% trans "Total Delivery Charges" %}</span>
+                                    <span>
+                                        {% if total_delivery_charge > 0 %}
+                                            ₹{{ total_delivery_charge|floatformat:0 }}
+                                        {% else %}
+                                            {% trans "FREE" %}
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </li>
+                            
+                            <li class="list-group-item d-flex justify-content-between align-items-center border-0 py-3 fw-bold bg-light rounded-bottom">
+                                <span class="text-dark">{% trans "Total" %} (INR)</span>
+                                <strong class="fs-5 text-success">₹{{ total|floatformat:0 }}</strong>
+                            </li>
+                        </ul>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-outline-secondary px-4 py-2" onclick="goToStep(2)">
+                                <i class="bi bi-arrow-left me-2"></i> {% trans "Back" %}
+                            </button>
+                            <button type="submit" class="btn btn-success px-5 py-2 fw-bold fs-5 shadow-sm">
+                                <i class="bi bi-bag-check me-2"></i> {% trans "Place Order" %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    let currentStep = 1;
+    
+    function updateProgressUI() {
+        // Update Indicator Node States
+        for (let i = 1; i <= 3; i++) {
+            const node = document.getElementById('node-' + i);
+            if (i < currentStep) {
+                node.className = 'step-node completed';
+            } else if (i === currentStep) {
+                node.className = 'step-node active';
+            } else {
+                node.className = 'step-node';
+            }
+        }
+        
+        // Update connecting progress bar
+        const percent = ((currentStep - 1) / 2) * 100;
+        document.getElementById('stepProgressBar').style.width = percent + '%';
+        
+        // Update Step Views
+        for (let i = 1; i <= 3; i++) {
+            const step = document.getElementById('step-' + i);
+            if (i === currentStep) {
+                step.classList.add('active');
+            } else {
+                step.classList.remove('active');
+            }
+        }
+    }
+    
+    function validateStep(stepNum) {
+        if (stepNum === 1) {
+            // Validate Billing Fields
+            const inputs = document.getElementById('step-1').querySelectorAll('input');
+            let valid = true;
+            inputs.forEach(input => {
+                if (!input.checkValidity()) {
+                    valid = false;
+                }
+            });
+            
+            if (!valid) {
+                // Trigger HTML5 Validation Displays
+                document.getElementById('checkoutWizardForm').classList.add('was-validated');
+                return false;
+            }
+            return true;
+        } else if (stepNum === 2) {
+            // Validate Payment Method inputs
+            const selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
+            if (selectedMethod !== 'COD') {
+                const detailInput = document.getElementById('paymentDetailsWrapper')
+                                           .querySelector('#details-' + selectedMethod)
+                                           .querySelector('input');
+                if (detailInput && !detailInput.value.trim()) {
+                    detailInput.classList.add('is-invalid');
+                    detailInput.required = true;
+                    return false;
+                } else if (detailInput) {
+                    detailInput.classList.remove('is-invalid');
+                }
+            }
+            return true;
+        }
+        return true;
+    }
+    
+    function goToStep(targetStep) {
+        if (targetStep > currentStep) {
+            // Moving forward: validate current step first
+            if (!validateStep(currentStep)) {
+                return;
+            }
+        }
+        
+        currentStep = targetStep;
+        
+        if (currentStep === 3) {
+            // Populating Summary details on Final step
+            const firstName = document.getElementById('first_name').value;
+            const lastName = document.getElementById('last_name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const city = document.getElementById('city').value;
+            const state = document.getElementById('state').value;
+            const country = document.getElementById('country').value;
+            
+            document.getElementById('summaryName').textContent = firstName + ' ' + lastName + ' (' + email + ')';
+            document.getElementById('summaryAddress').textContent = address + ', ' + city + ', ' + state + ', ' + country;
+            document.getElementById('summaryPhone').textContent = '{% trans "Phone:" %} ' + phone;
+            
+            const selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
+            document.getElementById('summaryPaymentType').textContent = selectedMethod;
+            
+            let paymentDetailStr = '';
+            if (selectedMethod === 'COD') {
+                paymentDetailStr = '{% trans "Pay with cash on delivery" %}';
+            } else {
+                const detailInput = document.getElementById('paymentDetailsWrapper')
+                                           .querySelector('#details-' + selectedMethod)
+                                           .querySelector('input');
+                if (detailInput) {
+                    paymentDetailStr = detailInput.value.trim();
+                }
+            }
+            document.getElementById('summaryPaymentDetail').textContent = paymentDetailStr;
+        }
+        
+        updateProgressUI();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    function togglePaymentDetailFields(paymentMethod) {
+        const detailsWrapper = document.getElementById('paymentDetailsWrapper');
+        const sections = document.querySelectorAll('.payment-detail-input-section');
+        
+        sections.forEach(sec => {
+            sec.classList.add('d-none');
+            const inp = sec.querySelector('input');
+            if (inp) {
+                inp.required = false;
+                inp.disabled = true;
+            }
+        });
+        
+        if (paymentMethod === 'COD') {
+            detailsWrapper.classList.add('d-none');
+        } else {
+            detailsWrapper.classList.remove('d-none');
+            const activeSection = document.getElementById('details-' + paymentMethod);
+            if (activeSection) {
+                activeSection.classList.remove('d-none');
+                const activeInput = activeSection.querySelector('input');
+                if (activeInput) {
+                    activeInput.required = true;
+                    activeInput.disabled = false;
+                    activeInput.focus();
+                }
+            }
+        }
+    }
+    
+    // Initial UI Setup
+    document.addEventListener('DOMContentLoaded', function() {
+        togglePaymentDetailFields('COD'); // Default COD
+    });
+</script>
+{% endblock %}

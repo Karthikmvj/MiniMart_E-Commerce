@@ -1,0 +1,268 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans "Create Account" %} — MiniMart</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 14px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #172337 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+        .reg-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,.3);
+            width: 100%;
+            max-width: 560px;
+            overflow: hidden;
+        }
+        .reg-header {
+            background: linear-gradient(135deg, #0f172a, #1e3a5f);
+            padding: 24px 32px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .reg-header::before {
+            content: '';
+            position: absolute;
+            width: 220px; height: 220px;
+            border-radius: 50%;
+            background: rgba(255,159,0,.07);
+            top: -70px; right: -50px;
+        }
+        .home-back {
+            position: absolute;
+            top: 14px; left: 16px;
+            display: inline-flex; align-items: center; gap: 5px;
+            color: rgba(255,255,255,.5);
+            font-size: 12px; font-weight: 600;
+            text-decoration: none;
+            transition: color .15s;
+            z-index: 2;
+        }
+        .home-back:hover { color: rgba(255,255,255,.9); }
+        .reg-logo {
+            display: inline-flex;
+            text-decoration: none;
+            margin-bottom: 10px;
+            position: relative; z-index: 1;
+            transition: transform .3s ease;
+        }
+        .reg-logo:hover { transform: scale(1.08) rotate(-3deg); }
+        .reg-brand {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -.5px;
+            position: relative; z-index: 1;
+            display: block;
+            margin-bottom: 3px;
+        }
+        .reg-sub {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            position: relative; z-index: 1;
+        }
+        .reg-body { padding: 24px 28px 28px; }
+        .reg-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 2px;
+        }
+        .reg-subtitle {
+            font-size: 12.5px;
+            color: #64748b;
+            margin-bottom: 18px;
+        }
+        .field-lbl {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: #64748b;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .form-control {
+            border: 1.5px solid #e2e8f0 !important;
+            border-radius: 8px !important;
+            padding: 10px 13px !important;
+            font-size: 14px !important;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #0f172a !important;
+            background: #f8fafc !important;
+            transition: border-color .15s, box-shadow .15s, background .15s !important;
+        }
+        .form-control:focus {
+            border-color: #2874f0 !important;
+            background: #fff !important;
+            box-shadow: 0 0 0 3px rgba(40,116,240,.1) !important;
+        }
+        .form-control::placeholder { color: #94a3b8; }
+        .field-err { font-size: 12px; color: #ef4444; margin-top: 3px; }
+        .btn-register {
+            background: linear-gradient(135deg, #2874f0, #1b62db);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 12px;
+            border: none;
+            border-radius: 9px;
+            width: 100%;
+            cursor: pointer;
+            transition: all .2s ease;
+            box-shadow: 0 4px 14px rgba(40,116,240,.25);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .btn-register:hover {
+            background: linear-gradient(135deg, #1b62db, #1452b8);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(40,116,240,.3);
+        }
+        .divider-or {
+            display: flex; align-items: center; gap: 10px;
+            color: #cbd5e1; font-size: 12px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: .04em;
+            margin: 18px 0;
+        }
+        .divider-or::before, .divider-or::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+        .signin-link {
+            display: block;
+            text-align: center;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 9px;
+            padding: 11px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #0f172a;
+            text-decoration: none;
+            transition: all .15s;
+        }
+        .signin-link:hover { border-color: #2874f0; color: #2874f0; background: #f0f5ff; }
+    </style>
+</head>
+<body>
+<div class="reg-card">
+
+    <div class="reg-header">
+        <a href="{% url 'home' %}" class="home-back"><i class="bi bi-arrow-left"></i> {% trans "Home" %}</a>
+        <a href="{% url 'home' %}" class="reg-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="50" height="50">
+                <defs>
+                    <linearGradient id="lgReg" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#FF5E3A"/>
+                        <stop offset="100%" stop-color="#FFB800"/>
+                    </linearGradient>
+                </defs>
+                <rect x="8" y="8" width="84" height="84" rx="22" fill="url(#lgReg)"/>
+                <path d="M 26 70 L 26 30 L 50 54 L 74 30 L 74 70" fill="none" stroke="#FFF" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </a>
+        <span class="reg-brand">Mini<span style="background:linear-gradient(135deg,#FF5E3A,#FFB800);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Mart</span></span>
+        <span class="reg-sub">{% trans "Smart Shopping" %}</span>
+    </div>
+
+    <div class="reg-body">
+        <h2 class="reg-title">{% trans "Create your account" %}</h2>
+        <p class="reg-subtitle">{% trans "Join MiniMart and start shopping smarter." %}</p>
+
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{% if 'error' in message.tags %}danger{% else %}success{% endif %} alert-dismissible fade show mb-3" role="alert" style="font-size:13px; border:none; border-radius:9px;">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger mb-3" style="font-size:13px; border:none; border-radius:9px;">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'register' %}" novalidate>
+            {% csrf_token %}
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="field-lbl">{% trans "Full Name" %}</label>
+                    <input type="text" name="{{ form.name.name }}" id="{{ form.name.id_for_label }}"
+                           class="form-control" placeholder="{% trans 'Your full name' %}" required>
+                    <div class="field-err">{{ form.name.errors }}</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="field-lbl">{% trans "Username" %}</label>
+                    <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}"
+                           class="form-control" placeholder="{% trans 'Choose a username' %}" required>
+                    <div class="field-err">{{ form.username.errors }}</div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="field-lbl">{% trans "Email Address" %}</label>
+                    <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}"
+                           class="form-control" placeholder="{% trans 'name@example.com' %}" required>
+                    <div class="field-err">{{ form.email.errors }}</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="field-lbl">{% trans "Mobile Number" %}</label>
+                    <input type="text" name="{{ form.mobile_number.name }}" id="{{ form.mobile_number.id_for_label }}"
+                           class="form-control" placeholder="{% trans '10-digit number' %}" required>
+                    <div class="field-err">{{ form.mobile_number.errors }}</div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="field-lbl">{% trans "Password" %}</label>
+                    <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}"
+                           class="form-control" placeholder="{% trans 'Create a strong password' %}" required>
+                    <div class="field-err">{{ form.password.errors }}</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="field-lbl">{% trans "Confirm Password" %}</label>
+                    <input type="password" name="{{ form.confirm_password.name }}" id="{{ form.confirm_password.id_for_label }}"
+                           class="form-control" placeholder="{% trans 'Repeat password' %}" required>
+                    <div class="field-err">{{ form.confirm_password.errors }}</div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-register">
+                <i class="bi bi-person-plus me-2"></i>{% trans "Create Account" %}
+            </button>
+        </form>
+
+        <div class="divider-or">{% trans "or" %}</div>
+
+        <a href="{% url 'login' %}" class="signin-link">
+            {% trans "Already have an account? Sign In" %}
+        </a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

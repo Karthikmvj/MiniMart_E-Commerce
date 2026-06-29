@@ -1,0 +1,61 @@
+{% extends 'accounts/base_account.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Notification Preferences" %} - MiniMart{% endblock %}
+
+{% block account_content %}
+<div class="card border-0">
+    <div class="card-header bg-primary text-white py-3 rounded-top">
+        <h5 class="mb-0 fw-bold">{% trans "Notification Preferences" %}</h5>
+    </div>
+    <div class="card-body p-4">
+        <form method="post" class="form-card">
+            {% csrf_token %}
+            <p class="text-muted mb-4">{% trans "Choose how you want to be notified about your orders, wishlist, and promotional activities." %}</p>
+            
+            <div class="row g-0">
+                {% for field in form %}
+                <div class="col-12 border-bottom py-3 px-2 rounded hover-item transition-all" style="transition: all 0.2s ease;">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="pe-3">
+                            <label class="form-label fw-bold text-dark d-block mb-1" style="cursor: pointer;" for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
+                            <span class="text-muted small">
+                                {% if field.name == 'order_updates' %}
+                                    {% trans "Get real-time updates about your order status, shipment, and returns." %}
+                                {% elif field.name == 'promotional_emails' %}
+                                    {% trans "Receive emails about special discounts, sales, and personalized recommendations." %}
+                                {% elif field.name == 'review_reminders' %}
+                                    {% trans "Get reminded to leave reviews for your purchased items to help other customers." %}
+                                {% elif field.name == 'wishlist_updates' %}
+                                    {% trans "Be notified when items in your wishlist go on sale or are back in stock." %}
+                                {% elif field.name == 'cart_reminders' %}
+                                    {% trans "Get friendly reminders about items left in your shopping cart." %}
+                                {% elif field.name == 'sms_notifications' %}
+                                    {% trans "Receive key order and delivery updates directly to your mobile phone via SMS." %}
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="form-switch fs-4 p-0 m-0 d-flex align-items-center">
+                            {{ field }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <style>
+                .hover-item:hover {
+                    background-color: #f8fafc;
+                }
+            </style>
+            
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <a href="{% url 'profile' %}" class="btn btn-secondary px-4">{% trans "Cancel" %}</a>
+                <button type="submit" class="btn btn-primary px-4">{% trans "Save Preferences" %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

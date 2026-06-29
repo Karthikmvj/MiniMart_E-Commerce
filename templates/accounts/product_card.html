@@ -1,0 +1,54 @@
+{% load i18n %}
+<div class="card h-100 shadow-sm border-0 position-relative hover-card">
+    <!-- 1. Offer Badge (e.g., 10% OFF, 20% OFF) -->
+    {% if product.discount_percentage > 0 %}
+    <span class="badge bg-danger position-absolute top-0 start-0 m-2 px-2 py-1 shadow-sm" style="z-index: 10;">
+        {{ product.discount_percentage }}% {% trans "OFF" %}
+    </span>
+    {% endif %}
+
+    <!-- 2. Product Image with Default Category Image Fallback -->
+    <a href="{{ product.get_url }}">
+        {% if product.images %}
+            <img src="{{ product.images.url }}" class="card-img-top" alt="{{ product.translated_name }}" style="height: 250px; object-fit: cover;">
+        {% elif product.category.category_image %}
+            <img src="{{ product.category.category_image.url }}" class="card-img-top" alt="{{ product.category.translated_name }}" style="height: 250px; object-fit: cover;">
+        {% else %}
+            <!-- Extra Safety Fallback -->
+            <div class="bg-light d-flex align-items-center justify-content-center text-muted card-img-top" style="height: 250px;">No Image Available</div>
+        {% endif %}
+    </a>
+
+    <div class="card-body d-flex flex-column">
+        <div class="mb-1 text-muted small">{{ product.category.translated_name }}</div>
+        <h5 class="card-title mb-2">
+            <a href="{{ product.get_url }}" class="text-decoration-none text-dark">{{ product.translated_name }}</a>
+        </h5>
+
+        <!-- 3. Star Rating Display -->
+        <div class="mb-3 text-warning d-flex align-items-center">
+            {% if product.average_rating %}
+                <i class="bi bi-star-fill me-1"></i> <span class="fw-bold text-dark">{{ product.average_rating }}</span>
+                <span class="text-muted ms-1 small">({{ product.review_count }})</span>
+            {% else %}
+                <i class="bi bi-star text-muted me-1"></i> <span class="text-muted small">{% trans "No reviews" %}</span>
+            {% endif %}
+        </div>
+
+        <!-- 4. Discounted Price & Original Price Struck Through -->
+        <div class="mt-auto">
+            <h5 class="mb-0 text-primary fw-bold">
+                ₹{{ product.price }}
+                {% if product.original_price and product.original_price > product.price %}
+                    <small class="text-muted text-decoration-line-through fs-6 ms-2">₹{{ product.original_price }}</small>
+                {% endif %}
+            </h5>
+        </div>
+    </div>
+    
+    <div class="card-footer bg-white border-0 pt-0 pb-3">
+        <a href="{% url 'add_cart' product.id %}" class="btn btn-outline-primary w-100">
+            <i class="bi bi-cart-plus me-1"></i> {% trans "Add to Cart" %}
+        </a>
+    </div>
+</div>

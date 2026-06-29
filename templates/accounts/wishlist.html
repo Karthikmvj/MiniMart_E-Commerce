@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="mt-0">
+    <h2 class="mb-4">{% trans "Wishlist" %}</h2>
+    {% if not wishlist_items %}
+        <div class="alert alert-info">{% trans "Your wishlist is currently empty." %} <a href="{% url 'product_list' %}">{% trans "All Products" %}</a>.</div>
+    {% else %}
+        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+            {% for item in wishlist_items %}
+            <div class="col">
+                <div class="card h-100 shadow-sm border-0">
+                    <a href="{{ item.product.get_url }}">
+                        <img src="{{ item.product.images.url }}" class="card-img-top" alt="{{ item.product.translated_name }}" style="height: 200px; object-fit: cover;">
+                    </a>
+                    <div class="card-body text-center">
+                        <h5 class="card-title text-truncate">{{ item.product.translated_name }}</h5>
+                        <p class="text-success fw-bold">₹{{ item.product.price }}</p>
+                        <a href="{% url 'add_cart' item.product.id %}" class="btn btn-primary btn-sm mb-2 w-100">{% trans "Add to Cart" %}</a>
+                        <a href="{% url 'remove_wishlist' item.product.id %}" class="btn btn-outline-danger btn-sm w-100">{% trans "Remove" %}</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

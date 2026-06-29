@@ -1,0 +1,67 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}System Settings - MiniMart Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">System Settings</h1>
+        <p class="text-muted mb-0">Manage global store configurations and system behavior.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="panel-card p-4 form-card">
+            <h5 class="fw-bold mb-4 border-bottom pb-2 text-primary">Configuration</h5>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Store Name</label>
+                    {{ form.store_name }}
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Contact Email</label>
+                        {{ form.contact_email }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Support Phone</label>
+                        {{ form.support_phone }}
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <div class="form-check form-switch pt-2">
+                        {{ form.maintenance_mode }}
+                        <label class="form-check-label fw-semibold ms-2" for="id_maintenance_mode">Enable Maintenance Mode</label>
+                        <div class="form-text text-muted">When active, customer-facing interfaces will show a temporary maintenance notification.</div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold">Save Settings</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="panel-card p-4 bg-white" style="border-top: 4px solid var(--mini-navy);">
+            <h5 class="fw-bold mb-3 pb-2 border-bottom d-flex align-items-center" style="color: var(--mini-navy);">
+                <i class="fas fa-info-circle me-2" style="color: var(--mini-blue);"></i>System Info
+            </h5>
+            <table class="table table-borderless small mb-0">
+                <tr>
+                    <td class="text-muted fw-bold ps-0">Django Version:</td>
+                    <td class="fw-semibold">6.0.4</td>
+                </tr>
+                <tr>
+                    <td class="text-muted fw-bold ps-0">Database Type:</td>
+                    <td>SQLite 3</td>
+                </tr>
+                <tr>
+                    <td class="text-muted fw-bold ps-0">Active Theme:</td>
+                    <td>Premium Midnight Navy</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

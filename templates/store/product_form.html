@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>{{ title }}</h2>
+<form method="POST" enctype="multipart/form-data" style="max-width: 500px;">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn">Save</button>
+    <a href="{% url 'product_list' %}" class="btn" style="background: #6c757d; margin-left: 10px;">Cancel</a>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const categorySelect = document.getElementById('id_category');
+        const brandSelect = document.getElementById('id_brand');
+        
+        function toggleBrandField() {
+            if (!categorySelect || !brandSelect) return;
+            const selectedText = categorySelect.options[categorySelect.selectedIndex]?.text || '';
+            const brandContainer = brandSelect.closest('p');
+            if (selectedText.toLowerCase() === 'fruits' || selectedText.toLowerCase() === 'vegetables') {
+                if (brandContainer) brandContainer.style.display = 'none';
+                brandSelect.value = '';
+            } else {
+                if (brandContainer) brandContainer.style.display = '';
+            }
+        }
+        
+        if (categorySelect) {
+            categorySelect.addEventListener('change', toggleBrandField);
+            toggleBrandField();
+        }
+    });
+</script>
+{% endblock %}

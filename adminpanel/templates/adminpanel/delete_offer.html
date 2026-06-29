@@ -1,0 +1,31 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}Delete Offer - MiniMart Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title text-danger">Delete Offer</h1>
+        <p class="text-muted mb-0">Are you sure you want to delete this offer?</p>
+    </div>
+    <a href="{% url 'adminpanel:offer_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Offers
+    </a>
+</div>
+
+<div class="panel-card form-card p-4">
+    <div class="alert alert-warning">
+        <h4 class="alert-heading">Warning!</h4>
+        <p>You are about to delete the offer <strong>"{{ offer.title }}"</strong>. This action cannot be undone.</p>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-danger px-4">
+                <i class="fas fa-trash me-2"></i>Yes, Delete Offer
+            </button>
+            <a href="{% url 'adminpanel:offer_list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

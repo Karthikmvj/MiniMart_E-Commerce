@@ -1,0 +1,162 @@
+{% extends 'accounts/base_account.html' %}
+{% load i18n %}
+{% load i18n_helper %}
+
+{% block title %}{% trans "My Profile" %} - MiniMart{% endblock %}
+
+{% block account_content %}
+<div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+    <h2 class="fw-bold mb-0">{% trans "My Profile" %}</h2>
+    <a href="{% url 'profile_settings' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+        <i class="bi bi-pencil-square me-1"></i> {% trans "Edit Profile" %}
+    </a>
+</div>
+
+<!-- Stats Summary Row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 bg-light p-3 shadow-sm rounded-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small text-uppercase fw-bold">{% trans "Orders Placed" %}</span>
+                    <h3 class="fw-bold mb-0 mt-1 text-primary">{{ total_orders_count }}</h3>
+                </div>
+                <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary" style="border-radius: 50%;">
+                    <i class="bi bi-box-seam fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 bg-light p-3 shadow-sm rounded-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small text-uppercase fw-bold">{% trans "Wishlist Items" %}</span>
+                    <h3 class="fw-bold mb-0 mt-1 text-danger">{{ wishlist_count }}</h3>
+                </div>
+                <div class="bg-danger bg-opacity-10 p-3 rounded-circle text-danger" style="border-radius: 50%;">
+                    <i class="bi bi-heart fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 bg-light p-3 shadow-sm rounded-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small text-uppercase fw-bold">{% trans "Member Since" %}</span>
+                    <h4 class="fw-bold mb-0 mt-2 text-success">{{ user.date_joined|date:"M Y" }}</h4>
+                </div>
+                <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success" style="border-radius: 50%;">
+                    <i class="bi bi-calendar-check fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Details & Security -->
+    <div class="col-md-6">
+        <div class="card border p-3 rounded-3 shadow-sm h-100 bg-white">
+            <h5 class="fw-bold mb-3"><i class="bi bi-person-lines-fill me-2 text-primary"></i>{% trans "Account Details" %}</h5>
+            <ul class="list-unstyled mb-4">
+                <li class="mb-2"><strong class="d-inline-block" style="width: 120px;">{% trans "Full Name:" %}</strong> {{ user.get_full_name|default:"Not set"|translate }}</li>
+                <li class="mb-2"><strong class="d-inline-block" style="width: 120px;">{% trans "Username:" %}</strong> {{ user.username|translate }}</li>
+                <li class="mb-2"><strong class="d-inline-block" style="width: 120px;">{% trans "Email:" %}</strong> {{ user.email }}</li>
+                <li class="mb-2"><strong class="d-inline-block" style="width: 120px;">{% trans "Joined on:" %}</strong> {{ user.date_joined|date:"d M, Y" }}</li>
+            </ul>
+            <h5 class="fw-bold mb-3"><i class="bi bi-shield-lock me-2 text-primary"></i>{% trans "Security" %}</h5>
+            <a href="{% url 'change_password' %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                <i class="bi bi-key me-1"></i>{% trans "Change Password" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Right Column: Default Shipping Address -->
+    <div class="col-md-6">
+        <div class="card border p-3 rounded-3 shadow-sm h-100 bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="bi bi-geo-alt me-2 text-primary"></i>{% trans "Default Address" %}</h5>
+                {% if default_address %}
+                <span class="badge bg-primary">{% trans "Default" %}</span>
+                {% endif %}
+            </div>
+            
+            {% if default_address %}
+                <div class="mb-3">
+                    <h6 class="fw-bold mb-1 text-dark">{{ default_address.full_name }}</h6>
+                    <p class="text-muted small mb-1">{{ default_address.address_line_1 }}</p>
+                    {% if default_address.address_line_2 %}
+                        <p class="text-muted small mb-1">{{ default_address.address_line_2 }}</p>
+                    {% endif %}
+                    <p class="text-muted small mb-1">{{ default_address.city }}, {{ default_address.state }} {{ default_address.postal_code }}</p>
+                    <p class="text-muted small mb-1">{{ default_address.country }}</p>
+                    <p class="text-muted small mb-0"><i class="bi bi-telephone me-1"></i>{{ default_address.phone_number }}</p>
+                </div>
+                <a href="{% url 'address_book' %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 mt-auto w-100 text-center">
+                    <i class="bi bi-pencil me-1"></i>{% trans "Manage Addresses" %}
+                </a>
+            {% else %}
+                <div class="text-center py-4 my-auto">
+                    <i class="bi bi-geo fs-1 text-muted"></i>
+                    <p class="text-muted small mt-2">{% trans "No shipping address added yet." %}</p>
+                    <a href="{% url 'add_address' %}" class="btn btn-sm btn-primary rounded-pill px-3">
+                        <i class="bi bi-plus me-1"></i>{% trans "Add Address" %}
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<hr class="my-4">
+
+<div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold">{% trans "Recent Orders" %}</h4>
+        <a href="{% url 'order_history' %}" class="btn btn-primary btn-sm rounded-pill px-3">{% trans "View All Orders" %}</a>
+    </div>
+    {% if recent_orders %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">{% trans "Order #" %}</th>
+                    <th scope="col">{% trans "Date" %}</th>
+                    <th scope="col">{% trans "Total" %}</th>
+                    <th scope="col">{% trans "Status" %}</th>
+                    <th scope="col">{% trans "Actions" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in recent_orders %}
+                <tr>
+                    <td><a href="{% url 'order_history' %}">{{ order.order_number }}</a></td>
+                    <td>{{ order.created_at|date:"d M, Y" }}</td>
+                    <td>₹{{ order.order_total|floatformat:0 }}</td>
+                    <td><span class="badge bg-info text-dark">{{ order.get_status_display }}</span></td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'track_order' %}?order_number={{ order.order_number }}" class="btn btn-sm btn-primary rounded-pill px-3 fw-semibold">
+                                <i class="bi bi-truck me-1"></i>{% trans "Track" %}
+                            </a>
+                            <a href="{% url 'order_invoice' order.id %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold">
+                                <i class="bi bi-file-earmark-text me-1"></i>{% trans "Invoice" %}
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center text-muted p-4 border rounded-3">
+        <i class="bi bi-cart-x fs-1"></i>
+        <p class="mt-2">{% trans "You haven't placed any orders yet." %}</p>
+        <a href="{% url 'product_list' %}" class="btn btn-primary">{% trans "Start Shopping" %}</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

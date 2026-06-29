@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "About Us" %} - {{ system_settings.store_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-lg-8">
+        <article class="soft-card p-4 p-md-5">
+            <span class="badge bg-primary-subtle text-primary-emphasis rounded-pill mb-3">{% trans "About Us" %}</span>
+            <h1 class="h2 fw-bold mb-3">{% trans "Our mission is to make everyday shopping easy and enjoyable." %}</h1>
+            <p class="text-muted">{% trans "Our store brings together a modern shopping experience, useful product discovery, and reliable checkout support. We focus on clarity, performance, and a clean design so you can find what you need with confidence." %}</p>
+            <p class="text-muted mb-0">{% trans "From fresh essentials to curated categories, we build templates to help customers browse, compare, and shop with a professional storefront feel." %}</p>
+        </article>
+    </div>
+</div>
+{% endblock %}
